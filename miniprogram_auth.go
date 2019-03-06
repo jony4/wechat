@@ -108,10 +108,7 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 	return ret, nil
 }
 
-// MiniProgramAuthRequest MiniProgramAuthRequest
-type MiniProgramAuthRequest struct {
-}
-
 // MiniProgramAuthResponse MiniProgramAuthResponse
 type MiniProgramAuthResponse struct {
+	CommonError
 }

@@ -12,7 +12,14 @@ import (
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Duration(time.Second))
 	defer cancel()
-	client, err := wechat.NewClient(wechat.NewMiniProgramAuthOpts()...)
+	logger := wechat.NewDefaultLogger()
+	opts := append(
+		wechat.NewMiniProgramAuthOpts(),
+		wechat.SetInfoLog(logger),
+		wechat.SetErrorLog(logger),
+		wechat.SetTraceLog(logger),
+	)
+	client, err := wechat.NewClient(opts...)
 	if err != nil {
 		log.Fatal(err)
 	}
