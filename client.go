@@ -273,7 +273,7 @@ func (c *Client) dumpResponse(resp *http.Response) {
 // PerformRequestOptions must be passed into PerformRequest.
 type PerformRequestOptions struct {
 	Method          string
-	Path            string // set default value when NewClient(), ignore this default.
+	Path            string
 	Params          url.Values
 	Body            interface{}
 	ContentType     string
@@ -286,13 +286,17 @@ type PerformRequestOptions struct {
 func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) (*Response, error) {
 	start := time.Now().UTC()
 
-	c.mu.RLock()
+	c.mu.Lock()
 	sendGetBodyAs := c.sendGetBodyAs
 	gzipEnabled := c.gzipEnabled
-	// if opt.Path == "" {
-	opt.Path = fmt.Sprintf("%s://%s/%s", c.scheme, c.baseURI, c.endpoint)
-	// }
-	c.mu.RUnlock()
+	if opt.Path == "" {
+		opt.Path = fmt.Sprintf("%s://%s/%s", c.scheme, c.baseURI, c.endpoint)
+	}
+	pathWithParams := opt.Path
+	if len(opt.Params) > 0 {
+		pathWithParams += "?" + opt.Params.Encode()
+	}
+	c.mu.Unlock()
 
 	var (
 		err  error
@@ -303,11 +307,6 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	// Change method if sendGetBodyAs is specified.
 	if opt.Method == "GET" && opt.Body != nil && sendGetBodyAs != "GET" {
 		opt.Method = sendGetBodyAs
-	}
-
-	pathWithParams := opt.Path
-	if len(opt.Params) > 0 {
-		pathWithParams += "?" + opt.Params.Encode()
 	}
 
 	req, err = NewRequest(opt.Method, pathWithParams)

@@ -3,6 +3,8 @@ package wechat
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
 )
 
 const (
@@ -17,8 +19,6 @@ type MiniProgramAuth struct {
 	secret    string
 	jscode    string
 	grantType string
-
-	params map[string]string
 }
 
 // NewMiniProgramAuthOpts return MiniProgram default opts
@@ -31,11 +31,11 @@ func NewMiniProgramAuthOpts() []ClientOptionFunc {
 
 // NewMiniProgramAuth return instance of mini program auth
 func NewMiniProgramAuth(client *Client) *MiniProgramAuth {
-	return &MiniProgramAuth{
-		client:    client,
-		grantType: "authorization_code",
-		params:    map[string]string{},
+	mpa := &MiniProgramAuth{
+		client: client,
 	}
+	mpa.SetGrantType()
+	return mpa
 }
 
 // SetSecret SetSecret
@@ -53,6 +53,12 @@ func (mpa *MiniProgramAuth) SetJscode(jscode string) *MiniProgramAuth {
 // SetAppID SetAppID
 func (mpa *MiniProgramAuth) SetAppID(appid string) *MiniProgramAuth {
 	mpa.appid = appid
+	return mpa
+}
+
+// SetGrantType SetGrantType
+func (mpa *MiniProgramAuth) SetGrantType() *MiniProgramAuth {
+	mpa.grantType = "authorization_code"
 	return mpa
 }
 
@@ -80,8 +86,26 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 	if err := mpa.Validate(); err != nil {
 		return nil, err
 	}
-	mpa.client.PerformRequest(ctx, PerformRequestOptions{})
-	return &MiniProgramAuthResponse{}, nil
+	// url params
+	params := url.Values{}
+	params.Set("appid", mpa.appid)
+	params.Set("secret", mpa.secret)
+	params.Set("js_code", mpa.jscode)
+	params.Set("grant_type", mpa.grantType)
+	// PerformRequest
+	res, err := mpa.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: http.MethodGet,
+		Params: params,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// Return operation response
+	ret := new(MiniProgramAuthResponse)
+	if err := mpa.client.decoder.Decode(res.Body, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 // MiniProgramAuthRequest MiniProgramAuthRequest
