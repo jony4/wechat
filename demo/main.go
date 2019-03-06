@@ -10,15 +10,15 @@ import (
 )
 
 func main() {
+	logger := wechat.NewDefaultLogger()
+	// init default client
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Duration(time.Second))
 	defer cancel()
-	logger := wechat.NewDefaultLogger()
-	opts := append(
-		wechat.NewMiniProgramAuthOpts(),
+	opts := []wechat.ClientOptionFunc{
 		wechat.SetInfoLog(logger),
 		wechat.SetErrorLog(logger),
 		wechat.SetTraceLog(logger),
-	)
+	}
 	client, err := wechat.NewClient(opts...)
 	if err != nil {
 		log.Fatal(err)

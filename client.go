@@ -61,8 +61,6 @@ type Client struct {
 	decoder       Decoder // used to decode data sent from wechat
 	sendGetBodyAs string  // override for when sending a GET with a body
 	gzipEnabled   bool    // gzip compression enabled or disabled (default)
-	baseURI       string  // current base uri, e.g. api.weixin.qq.com
-	endpoint      string  // current endpoint, e.g. wxa/plugin
 }
 
 // NewClient creates a new short-lived Client that can be used in
@@ -81,29 +79,10 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 			return nil, err
 		}
 	}
-	if c.baseURI == "" {
-		return nil, ErrNoBaseURI
-	}
 	c.mu.Lock()
 	c.running = true
 	c.mu.Unlock()
 	return c, nil
-}
-
-// SetBaseURI set base uri
-func SetBaseURI(baseURI string) ClientOptionFunc {
-	return func(c *Client) error {
-		c.baseURI = baseURI
-		return nil
-	}
-}
-
-// SetEndpoint set base uri
-func SetEndpoint(endpoint string) ClientOptionFunc {
-	return func(c *Client) error {
-		c.endpoint = endpoint
-		return nil
-	}
 }
 
 // SetHTTPClient can be used to specify the http.Client to use when making
@@ -273,13 +252,14 @@ func (c *Client) dumpResponse(resp *http.Response) {
 // PerformRequestOptions must be passed into PerformRequest.
 type PerformRequestOptions struct {
 	Method          string
-	Path            string
 	Params          url.Values
 	Body            interface{}
 	ContentType     string
 	IgnoreErrors    []int
 	Headers         http.Header
 	MaxResponseSize int64
+	BaseURI         string
+	Endpoint        string
 }
 
 // PerformRequest does a HTTP request to wechat.
@@ -289,10 +269,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	c.mu.Lock()
 	sendGetBodyAs := c.sendGetBodyAs
 	gzipEnabled := c.gzipEnabled
-	if opt.Path == "" {
-		opt.Path = fmt.Sprintf("%s://%s/%s", c.scheme, c.baseURI, c.endpoint)
-	}
-	pathWithParams := opt.Path
+	pathWithParams := fmt.Sprintf("%s://%s/%s", c.scheme, opt.BaseURI, opt.Endpoint)
 	if len(opt.Params) > 0 {
 		pathWithParams += "?" + opt.Params.Encode()
 	}

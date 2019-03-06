@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	miniProgramEndpoint = "sns/jscode2session"
+	// MiniProgramEndpoint Endpoint
+	MiniProgramEndpoint = "sns/jscode2session"
 )
 
 // MiniProgramAuth mini program auth.
@@ -19,14 +20,6 @@ type MiniProgramAuth struct {
 	secret    string
 	jscode    string
 	grantType string
-}
-
-// NewMiniProgramAuthOpts return MiniProgram default opts
-func NewMiniProgramAuthOpts() []ClientOptionFunc {
-	return []ClientOptionFunc{
-		SetBaseURI(MiniProgramBaseURI),
-		SetEndpoint(miniProgramEndpoint),
-	}
 }
 
 // NewMiniProgramAuth return instance of mini program auth
@@ -94,8 +87,10 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 	params.Set("grant_type", mpa.grantType)
 	// PerformRequest
 	res, err := mpa.client.PerformRequest(ctx, PerformRequestOptions{
-		Method: http.MethodGet,
-		Params: params,
+		Method:   http.MethodGet,
+		Params:   params,
+		BaseURI:  MiniProgramBaseURI,
+		Endpoint: MiniProgramEndpoint,
 	})
 	if err != nil {
 		return nil, err
@@ -111,4 +106,7 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 // MiniProgramAuthResponse MiniProgramAuthResponse
 type MiniProgramAuthResponse struct {
 	CommonError
+	AppID      string `json:"openid"`
+	SessionKey string `json:"session_key"`
+	UnionID    string `json:"unionid"`
 }
