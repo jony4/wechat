@@ -357,3 +357,8 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 func (c *Client) MiniProgramAuth() *MiniProgramAuth {
 	return NewMiniProgramAuth(c)
 }
+
+// MiniProgramAccessToken Miniprogram Auth
+func (c *Client) MiniProgramAccessToken() *MiniProgramAccessToken {
+	return NewMiniProgramAccessToken(c)
+}

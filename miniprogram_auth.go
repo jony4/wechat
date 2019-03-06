@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	// MiniProgramEndpoint Endpoint
-	MiniProgramEndpoint = "sns/jscode2session"
+	// MiniProgramAuthEndpoint Endpoint
+	MiniProgramAuthEndpoint = "sns/jscode2session"
 )
 
 // MiniProgramAuth mini program auth.
@@ -90,7 +90,7 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 		Method:   http.MethodGet,
 		Params:   params,
 		BaseURI:  MiniProgramBaseURI,
-		Endpoint: MiniProgramEndpoint,
+		Endpoint: MiniProgramAuthEndpoint,
 	})
 	if err != nil {
 		return nil, err

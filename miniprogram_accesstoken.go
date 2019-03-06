@@ -1,1 +1,100 @@
 package wechat
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"net/url"
+)
+
+const (
+	// MiniProgramAccessTokenEndpoint Endpoint
+	MiniProgramAccessTokenEndpoint = "cgi-bin/token"
+)
+
+// MiniProgramAccessToken mini program auth.
+type MiniProgramAccessToken struct {
+	client *Client
+
+	appid     string
+	secret    string
+	grantType string
+}
+
+// NewMiniProgramAccessToken return instance of mini program auth
+func NewMiniProgramAccessToken(client *Client) *MiniProgramAccessToken {
+	mpat := &MiniProgramAccessToken{
+		client: client,
+	}
+	mpat.SetGrantType()
+	return mpat
+}
+
+// SetSecret SetSecret
+func (mpat *MiniProgramAccessToken) SetSecret(secret string) *MiniProgramAccessToken {
+	mpat.secret = secret
+	return mpat
+}
+
+// SetAppID SetAppID
+func (mpat *MiniProgramAccessToken) SetAppID(appid string) *MiniProgramAccessToken {
+	mpat.appid = appid
+	return mpat
+}
+
+// SetGrantType SetGrantType
+func (mpat *MiniProgramAccessToken) SetGrantType() *MiniProgramAccessToken {
+	mpat.grantType = "client_credential"
+	return mpat
+}
+
+// Validate checks if the operation is valid.
+func (mpat *MiniProgramAccessToken) Validate() error {
+	var invalid []string
+	if mpat.appid == "" {
+		invalid = append(invalid, "AppID")
+	}
+	if mpat.secret == "" {
+		invalid = append(invalid, "Secret")
+	}
+	if len(invalid) > 0 {
+		return fmt.Errorf("missing required fields: %v", invalid)
+	}
+	return nil
+}
+
+// Do Do
+func (mpat *MiniProgramAccessToken) Do(ctx context.Context) (*MiniProgramAccessTokenResponse, error) {
+	// Check pre-conditions
+	if err := mpat.Validate(); err != nil {
+		return nil, err
+	}
+	// url params
+	params := url.Values{}
+	params.Set("appid", mpat.appid)
+	params.Set("secret", mpat.secret)
+	params.Set("grant_type", mpat.grantType)
+	// PerformRequest
+	res, err := mpat.client.PerformRequest(ctx, PerformRequestOptions{
+		Method:   http.MethodGet,
+		Params:   params,
+		BaseURI:  MiniProgramBaseURI,
+		Endpoint: MiniProgramAccessTokenEndpoint,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// Return operation response
+	ret := new(MiniProgramAccessTokenResponse)
+	if err := mpat.client.decoder.Decode(res.Body, ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+// MiniProgramAccessTokenResponse MiniProgramAccessTokenResponse
+type MiniProgramAccessTokenResponse struct {
+	CommonError
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int64  `json:"expires_in"`
+}
