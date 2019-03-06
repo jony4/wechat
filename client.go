@@ -362,3 +362,8 @@ func (c *Client) MiniProgramAuth() *MiniProgramAuth {
 func (c *Client) MiniProgramAccessToken() *MiniProgramAccessToken {
 	return NewMiniProgramAccessToken(c)
 }
+
+// MiniProgramBase Miniprogram Auth
+func (c *Client) MiniProgramBase() *MiniProgramBase {
+	return NewMiniProgramBase(c)
+}
