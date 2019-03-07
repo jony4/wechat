@@ -19,9 +19,12 @@ type MiniProgramBase struct {
 	accessToken string
 	appid       string
 
+	usingTransID bool
+
 	transactionID string
-	mchID         string
-	outTradeNo    string
+
+	mchID      string
+	outTradeNo string
 }
 
 // NewMiniProgramBase return instance of mini program auth
@@ -62,6 +65,12 @@ func (mpb *MiniProgramBase) SetOutTradeNo(outTradeNo string) *MiniProgramBase {
 	return mpb
 }
 
+// SetUsingTransID SetUsingTransID
+func (mpb *MiniProgramBase) SetUsingTransID() *MiniProgramBase {
+	mpb.usingTransID = true
+	return mpb
+}
+
 // Validate checks if the operation is valid.
 func (mpb *MiniProgramBase) Validate() error {
 	var invalid []string
@@ -73,6 +82,12 @@ func (mpb *MiniProgramBase) Validate() error {
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
+	}
+	if mpb.usingTransID && mpb.transactionID == "" {
+		return fmt.Errorf("transaction_id is nil")
+	}
+	if !mpb.usingTransID && (mpb.mchID == "" || mpb.outTradeNo == "") {
+		return fmt.Errorf("mch_id or out_trade_no is nil")
 	}
 	return nil
 }
@@ -87,9 +102,12 @@ func (mpb *MiniProgramBase) Do(ctx context.Context) (*MiniProgramBaseResponse, e
 	params := url.Values{}
 	params.Set("appid", mpb.appid)
 	params.Set("access_token", mpb.accessToken)
-	params.Set("transaction_id", mpb.transactionID)
-	params.Set("mch_id", mpb.mchID)
-	params.Set("out_trade_no", mpb.outTradeNo)
+	if mpb.usingTransID {
+		params.Set("transaction_id", mpb.transactionID)
+	} else {
+		params.Set("mch_id", mpb.mchID)
+		params.Set("out_trade_no", mpb.outTradeNo)
+	}
 	// PerformRequest
 	res, err := mpb.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
