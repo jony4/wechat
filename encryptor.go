@@ -121,7 +121,7 @@ func AESDecryptMsg(ciphertext []byte, aesKey []byte) (random, rawXMLMsg, appID [
 
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
-		panic(err)
+		return
 	}
 	mode := cipher.NewCBCDecrypter(block, aesKey[:16])
 	mode.CryptBlocks(plaintext, ciphertext)
@@ -194,7 +194,7 @@ func Signature(params ...string) string {
 }
 
 // RandomStr random string
-func RandomStr(length int) string {
+func RandomStr(length int) []byte {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
 	result := []byte{}
@@ -202,5 +202,5 @@ func RandomStr(length int) string {
 	for i := 0; i < length; i++ {
 		result = append(result, bytes[r.Intn(len(bytes))])
 	}
-	return string(result)
+	return result
 }
