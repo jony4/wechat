@@ -6,7 +6,7 @@ import (
 )
 
 // Decoder is used to decode responses from wechat.
-// Users of elastic can implement their own marshaler for advanced purposes
+// Users of wechat can implement their own marshaler for advanced purposes
 // and set them per Client (see SetDecoder). If none is specified,
 // DefaultDecoder is used.
 type Decoder interface {
