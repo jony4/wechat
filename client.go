@@ -377,3 +377,18 @@ func (c *Client) MiniProgramActivityMessageCreate() *MiniProgramActivityMessageC
 func (c *Client) MiniProgramActivityMessageUpdate() *MiniProgramActivityMessageUpdate {
 	return NewMiniProgramActivityMessageUpdate(c)
 }
+
+// MiniProgramAppCodeGet MiniProgramAppCodeGet
+func (c *Client) MiniProgramAppCodeGet() *MiniProgramAppCodeGet {
+	return NewMiniProgramAppCodeGet(c)
+}
+
+// MiniProgramAppCodeGetUnlimit MiniProgramAppCodeGetUnlimit
+func (c *Client) MiniProgramAppCodeGetUnlimit() *MiniProgramAppCodeGetUnlimit {
+	return NewMiniProgramAppCodeGetUnlimit(c)
+}
+
+// MiniProgramAppCodeCreate MiniProgramAppCodeCreate
+func (c *Client) MiniProgramAppCodeCreate() *MiniProgramAppCodeCreate {
+	return NewMiniProgramAppCodeCreate(c)
+}
