@@ -12,7 +12,7 @@ const (
 	MiniProgramAccessTokenEndpoint = "cgi-bin/token"
 )
 
-// MiniProgramAccessToken mini program auth.
+// MiniProgramAccessToken MiniProgramAccessToken
 type MiniProgramAccessToken struct {
 	client *Client
 
@@ -21,7 +21,7 @@ type MiniProgramAccessToken struct {
 	grantType string
 }
 
-// NewMiniProgramAccessToken return instance of mini program auth
+// NewMiniProgramAccessToken return instance of MiniProgramAccessToken
 func NewMiniProgramAccessToken(client *Client) *MiniProgramAccessToken {
 	mpat := &MiniProgramAccessToken{
 		client: client,
@@ -52,10 +52,10 @@ func (mpat *MiniProgramAccessToken) SetGrantType() *MiniProgramAccessToken {
 func (mpat *MiniProgramAccessToken) Validate() error {
 	var invalid []string
 	if mpat.appid == "" {
-		invalid = append(invalid, "AppID")
+		invalid = append(invalid, "appid")
 	}
 	if mpat.secret == "" {
-		invalid = append(invalid, "Secret")
+		invalid = append(invalid, "secret")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)

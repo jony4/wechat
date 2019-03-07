@@ -59,13 +59,13 @@ func (mpa *MiniProgramAuth) SetGrantType() *MiniProgramAuth {
 func (mpa *MiniProgramAuth) Validate() error {
 	var invalid []string
 	if mpa.appid == "" {
-		invalid = append(invalid, "AppID")
+		invalid = append(invalid, "appid")
 	}
 	if mpa.secret == "" {
-		invalid = append(invalid, "Secret")
+		invalid = append(invalid, "secret")
 	}
 	if mpa.jscode == "" {
-		invalid = append(invalid, "Jscode")
+		invalid = append(invalid, "jscode")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)

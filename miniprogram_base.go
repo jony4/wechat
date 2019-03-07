@@ -12,22 +12,19 @@ const (
 	MiniProgramBaseEndpoint = "wxa/getpaidunionid"
 )
 
-// MiniProgramBase mini program auth.
+// MiniProgramBase MiniProgramBase
 type MiniProgramBase struct {
 	client *Client
 
-	accessToken string
-	appid       string
-
-	usingTransID bool
-
+	accessToken   string
+	openid        string
+	usingTransID  bool
 	transactionID string
-
-	mchID      string
-	outTradeNo string
+	mchID         string
+	outTradeNo    string
 }
 
-// NewMiniProgramBase return instance of mini program auth
+// NewMiniProgramBase return instance of NewMiniProgramBase
 func NewMiniProgramBase(client *Client) *MiniProgramBase {
 	mpb := &MiniProgramBase{
 		client: client,
@@ -35,9 +32,9 @@ func NewMiniProgramBase(client *Client) *MiniProgramBase {
 	return mpb
 }
 
-// SetAppID SetAppID
-func (mpb *MiniProgramBase) SetAppID(appid string) *MiniProgramBase {
-	mpb.appid = appid
+// SetOpenID SetOpenID
+func (mpb *MiniProgramBase) SetOpenID(openid string) *MiniProgramBase {
+	mpb.openid = openid
 	return mpb
 }
 
@@ -74,11 +71,11 @@ func (mpb *MiniProgramBase) SetUsingTransID() *MiniProgramBase {
 // Validate checks if the operation is valid.
 func (mpb *MiniProgramBase) Validate() error {
 	var invalid []string
-	if mpb.appid == "" {
-		invalid = append(invalid, "AppID")
+	if mpb.openid == "" {
+		invalid = append(invalid, "openid")
 	}
 	if mpb.accessToken == "" {
-		invalid = append(invalid, "AccessToken")
+		invalid = append(invalid, "access_token")
 	}
 	if len(invalid) > 0 {
 		return fmt.Errorf("missing required fields: %v", invalid)
@@ -100,7 +97,7 @@ func (mpb *MiniProgramBase) Do(ctx context.Context) (*MiniProgramBaseResponse, e
 	}
 	// url params
 	params := url.Values{}
-	params.Set("appid", mpb.appid)
+	params.Set("openid", mpb.openid)
 	params.Set("access_token", mpb.accessToken)
 	if mpb.usingTransID {
 		params.Set("transaction_id", mpb.transactionID)

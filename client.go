@@ -367,3 +367,13 @@ func (c *Client) MiniProgramAccessToken() *MiniProgramAccessToken {
 func (c *Client) MiniProgramBase() *MiniProgramBase {
 	return NewMiniProgramBase(c)
 }
+
+// MiniProgramActivityMessageCreate MiniProgramActivityMessageCreate
+func (c *Client) MiniProgramActivityMessageCreate() *MiniProgramActivityMessageCreate {
+	return NewMiniProgramActivityMessageCreate(c)
+}
+
+// MiniProgramActivityMessageUpdate MiniProgramActivityMessageUpdate
+func (c *Client) MiniProgramActivityMessageUpdate() *MiniProgramActivityMessageUpdate {
+	return NewMiniProgramActivityMessageUpdate(c)
+}
