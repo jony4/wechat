@@ -1,4 +1,4 @@
-# wechat
+# Wechat SDK
 
 It is probably the best SDK in the world for developing WeChat App In Go.
 
