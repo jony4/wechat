@@ -14,7 +14,7 @@ import (
 
 const (
 	// Version is the current version of wechat.
-	Version = "0.0.1"
+	Version = "0.0.2"
 
 	// DefaultScheme is the default protocol scheme to use.
 	DefaultScheme = "https"
@@ -27,7 +27,7 @@ const (
 	DefaultGzipEnabled = false
 
 	// DefaultCacheExpiration of access token
-	DefaultCacheExpiration = 7200 * time.Minute
+	DefaultCacheExpiration = 7200 * time.Second
 
 	// DefaultCacheInterval cleanup cache
 	DefaultCacheInterval = 30 * time.Minute
@@ -55,7 +55,7 @@ type ClientOptionFunc func(*Client) error
 // Client is a common wechat client.
 // Create one by calling NewClient.
 type Client struct {
-	c *http.Client
+	httpClient *http.Client
 
 	running bool         // true if the client's background processes are running
 	mu      sync.RWMutex // guards the next block
@@ -75,7 +75,7 @@ type Client struct {
 // use cases where you need e.g. one client per request.
 func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	c := &Client{
-		c:             http.DefaultClient,
+		httpClient:    http.DefaultClient,
 		scheme:        DefaultScheme,
 		decoder:       &DefaultDecoder{},
 		sendGetBodyAs: DefaultSendGetBodyAs,
@@ -117,9 +117,9 @@ func SetCacheBackend(cache Cache) ClientOptionFunc {
 func SetHTTPClient(httpClient *http.Client) ClientOptionFunc {
 	return func(c *Client) error {
 		if httpClient != nil {
-			c.c = httpClient
+			c.httpClient = httpClient
 		} else {
-			c.c = http.DefaultClient
+			c.httpClient = http.DefaultClient
 		}
 		return nil
 	}
@@ -344,7 +344,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	c.dumpRequest((*http.Request)(req))
 
 	// Get response
-	res, err := c.c.Do((*http.Request)(req).WithContext(ctx))
+	res, err := c.httpClient.Do((*http.Request)(req).WithContext(ctx))
 	if IsContextErr(err) {
 		return nil, err
 	}
@@ -418,4 +418,11 @@ func (c *Client) MiniProgramAppCodeGetUnlimit() *MiniProgramAppCodeGetUnlimit {
 // MiniProgramAppCodeCreate MiniProgramAppCodeCreate
 func (c *Client) MiniProgramAppCodeCreate() *MiniProgramAppCodeCreate {
 	return NewMiniProgramAppCodeCreate(c)
+}
+
+// -- Basic API --
+
+// BasicAccessToken BasicAccessToken
+func (c *Client) BasicAccessToken(accessToken IAccessToken) *BasicAccessToken {
+	return NewBasicAccessToken(c, accessToken)
 }

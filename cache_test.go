@@ -1,6 +1,7 @@
 package wechat
 
 import (
+	"context"
 	"testing"
 	"time"
 )
@@ -19,7 +20,7 @@ func TestMemCache_Set(t *testing.T) {
 			name: "test1",
 			args: args{
 				key:        "key",
-				value:      "value",
+				value:      "test",
 				expiration: DefaultCacheExpiration,
 			},
 		},
@@ -32,13 +33,17 @@ func TestMemCache_Set(t *testing.T) {
 				t.Log(err)
 				t.FailNow()
 			}
-			mc.Set(tt.args.key, tt.args.value, tt.args.expiration)
-			if value, exist := mc.Get(tt.args.key); !exist || value.(string) != tt.args.value.(string) {
-				t.Log(value, exist)
+			ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+			defer cancel()
+			mc.Set(ctx, tt.args.key, tt.args.value, tt.args.expiration)
+			value, err := mc.Get(ctx, tt.args.key)
+			if err != nil || value.(string) != tt.args.value.(string) {
+				t.Log(value, err)
 				t.FailNow()
 			}
-			mc.Delete(tt.args.key)
-			if _, exist := mc.Get(tt.args.key); exist {
+			t.Log("value", value)
+			mc.Delete(ctx, tt.args.key)
+			if _, err := mc.Get(ctx, tt.args.key); err != nil && err != ErrCacheKeyNotExist {
 				t.Log("value should be deleted")
 				t.FailNow()
 			}

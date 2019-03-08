@@ -92,6 +92,27 @@ func (mpat *MiniProgramAccessToken) Do(ctx context.Context) (*MiniProgramAccessT
 	return ret, nil
 }
 
+// Credentials Credentials
+func (mpat *MiniProgramAccessToken) Credentials(ctx context.Context) (*AccessToken, error) {
+	res, err := mpat.Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if res.ErrCode != 0 {
+		return nil, fmt.Errorf("errcode: %v, errmsg: %s", res.ErrCode, res.ErrMsg)
+	}
+	at := &AccessToken{
+		AccessToken: res.AccessToken,
+		ExpiresIn:   res.ExpiresIn,
+	}
+	return at, nil
+}
+
+// ToString ToString
+func (mpat *MiniProgramAccessToken) ToString() string {
+	return fmt.Sprintf("%s_%s_%s", mpat.grantType, mpat.appid, mpat.secret)
+}
+
 // MiniProgramAccessTokenResponse MiniProgramAccessTokenResponse
 type MiniProgramAccessTokenResponse struct {
 	CommonError

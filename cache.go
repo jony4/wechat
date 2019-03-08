@@ -1,6 +1,8 @@
 package wechat
 
 import (
+	"context"
+	"errors"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -8,9 +10,9 @@ import (
 
 // Cache interface for store access token.
 type Cache interface {
-	Get(key string) (interface{}, bool)
-	Set(key string, value interface{}, expiration time.Duration)
-	Delete(key string)
+	Get(ctx context.Context, key string) (interface{}, error)
+	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
+	Delete(ctx context.Context, key string) error
 }
 
 // const of cache
@@ -18,6 +20,11 @@ const (
 	DefaultInterval   time.Duration = 1 * time.Minute // min unit set to ms
 	DefaultExpiration time.Duration = 0
 	NoExpiration      time.Duration = -1
+)
+
+// var of cache
+var (
+	ErrCacheKeyNotExist = errors.New("key not exist")
 )
 
 // MemCache MemCache
@@ -62,16 +69,54 @@ func SetDefaultInterval(inter time.Duration) MemCacheOptFunc {
 }
 
 // Set Set
-func (mc *MemCache) Set(key string, value interface{}, expiration time.Duration) {
-	mc.cache.Set(key, value, expiration)
+func (mc *MemCache) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	c := make(chan struct{}, 1)
+	go func() {
+		mc.cache.Set(key, value, expiration)
+		c <- struct{}{}
+	}()
+	select {
+	case <-c:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 // Get Get
-func (mc *MemCache) Get(key string) (interface{}, bool) {
-	return mc.cache.Get(key)
+func (mc *MemCache) Get(ctx context.Context, key string) (value interface{}, err error) {
+	cs := make(chan struct{}, 1)
+	ci := make(chan interface{}, 1)
+	go func() {
+		vv, exist := mc.cache.Get(key)
+		if !exist {
+			cs <- struct{}{}
+			return
+		}
+		ci <- vv
+	}()
+	select {
+	case v := <-ci:
+		value = v
+	case <-cs:
+		return nil, ErrCacheKeyNotExist
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+	return value, nil
 }
 
 // Delete Delete
-func (mc *MemCache) Delete(key string) {
-	mc.cache.Delete(key)
+func (mc *MemCache) Delete(ctx context.Context, key string) error {
+	c := make(chan struct{}, 1)
+	go func() {
+		mc.cache.Delete(key)
+		c <- struct{}{}
+	}()
+	select {
+	case <-c:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
