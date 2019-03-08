@@ -25,6 +25,12 @@ const (
 
 	// DefaultGzipEnabled specifies if gzip compression is enabled by default.
 	DefaultGzipEnabled = false
+
+	// DefaultCacheExpiration of access token
+	DefaultCacheExpiration = 7200 * time.Minute
+
+	// DefaultCacheInterval cleanup cache
+	DefaultCacheInterval = 30 * time.Minute
 )
 
 var (
@@ -61,6 +67,8 @@ type Client struct {
 	decoder       Decoder // used to decode data sent from wechat
 	sendGetBodyAs string  // override for when sending a GET with a body
 	gzipEnabled   bool    // gzip compression enabled or disabled (default)
+
+	cache Cache // Cache backend, used for saving access token etc.
 }
 
 // NewClient creates a new short-lived Client that can be used in
@@ -79,10 +87,29 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 			return nil, err
 		}
 	}
+	if c.cache == nil {
+		opts := []MemCacheOptFunc{
+			SetDefaultExpiration(DefaultCacheExpiration),
+			SetDefaultInterval(DefaultCacheInterval),
+		}
+		cache, err := NewMemCache(opts...)
+		if err != nil {
+			return nil, err
+		}
+		c.cache = cache
+	}
 	c.mu.Lock()
 	c.running = true
 	c.mu.Unlock()
 	return c, nil
+}
+
+// SetCacheBackend SetCacheBackend which implentment Cache interface
+func SetCacheBackend(cache Cache) ClientOptionFunc {
+	return func(c *Client) error {
+		c.cache = cache
+		return nil
+	}
 }
 
 // SetHTTPClient can be used to specify the http.Client to use when making
