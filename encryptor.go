@@ -217,23 +217,6 @@ var (
 	ErrInvalidPKCS7Padding = errors.New("invalid padding on input")
 )
 
-// UserInfo UserInfo
-type UserInfo struct {
-	OpenID    string `json:"openId"`
-	UnionID   string `json:"unionId"`
-	NickName  string `json:"nickName"`
-	Gender    int    `json:"gender"`
-	City      string `json:"city"`
-	Province  string `json:"province"`
-	Country   string `json:"country"`
-	AvatarURL string `json:"avatarUrl"`
-	Language  string `json:"language"`
-	Watermark struct {
-		Timestamp int64  `json:"timestamp"`
-		AppID     string `json:"appid"`
-	} `json:"watermark"`
-}
-
 // WXBizDataCrypt WXBizDataCrypt
 type WXBizDataCrypt struct {
 	appID      string
@@ -270,36 +253,28 @@ func pkcs7Unpad(data []byte, blockSize int) ([]byte, error) {
 }
 
 // Decrypt Decrypt
-func (w *WXBizDataCrypt) Decrypt(encryptedData, iv string) (*UserInfo, error) {
+func (w *WXBizDataCrypt) Decrypt(encryptedData, iv string, data interface{}) error {
 	aesKey, err := base64.StdEncoding.DecodeString(w.sessionKey)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	cipherText, err := base64.StdEncoding.DecodeString(encryptedData)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	ivBytes, err := base64.StdEncoding.DecodeString(iv)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	mode := cipher.NewCBCDecrypter(block, ivBytes)
 	mode.CryptBlocks(cipherText, cipherText)
 	cipherText, err = pkcs7Unpad(cipherText, block.BlockSize())
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var userInfo UserInfo
-	err = json.Unmarshal(cipherText, &userInfo)
-	if err != nil {
-		return nil, err
-	}
-	if userInfo.Watermark.AppID != w.appID {
-		return nil, ErrAppIDNotMatch
-	}
-	return &userInfo, nil
+	return json.Unmarshal(cipherText, &data)
 }
