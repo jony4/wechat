@@ -100,6 +100,9 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 	if err := mpa.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
+	if err := DecodeWithCommonError(fmt.Sprintf("miniprogram: %s", MiniProgramAuthEndpoint), ret.CommonError); err != nil {
+		return nil, err
+	}
 	return ret, nil
 }
 
