@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	// MiniProgramBaseEndpoint Endpoint
-	MiniProgramBaseEndpoint = "wxa/getpaidunionid"
+	// MiniProgramPaidEndpoint Endpoint
+	MiniProgramPaidEndpoint = "wxa/getpaidunionid"
 )
 
-// MiniProgramBase MiniProgramBase
-type MiniProgramBase struct {
+// MiniProgramPaid MiniProgramPaid
+type MiniProgramPaid struct {
 	client *Client
 
 	accessToken   string
@@ -24,52 +24,52 @@ type MiniProgramBase struct {
 	outTradeNo    string
 }
 
-// NewMiniProgramBase return instance of NewMiniProgramBase
-func NewMiniProgramBase(client *Client) *MiniProgramBase {
-	mpb := &MiniProgramBase{
+// NewMiniProgramPaid return instance of NewMiniProgramPaid
+func NewMiniProgramPaid(client *Client) *MiniProgramPaid {
+	mpb := &MiniProgramPaid{
 		client: client,
 	}
 	return mpb
 }
 
 // SetOpenID SetOpenID
-func (mpb *MiniProgramBase) SetOpenID(openid string) *MiniProgramBase {
+func (mpb *MiniProgramPaid) SetOpenID(openid string) *MiniProgramPaid {
 	mpb.openid = openid
 	return mpb
 }
 
 // SetAccessToken SetAccessToken
-func (mpb *MiniProgramBase) SetAccessToken(accessToken string) *MiniProgramBase {
+func (mpb *MiniProgramPaid) SetAccessToken(accessToken string) *MiniProgramPaid {
 	mpb.accessToken = accessToken
 	return mpb
 }
 
 // SetTransactionID SetTransactionID
-func (mpb *MiniProgramBase) SetTransactionID(transactionID string) *MiniProgramBase {
+func (mpb *MiniProgramPaid) SetTransactionID(transactionID string) *MiniProgramPaid {
 	mpb.transactionID = transactionID
 	return mpb
 }
 
 // SetMchID SetMchID
-func (mpb *MiniProgramBase) SetMchID(mchID string) *MiniProgramBase {
+func (mpb *MiniProgramPaid) SetMchID(mchID string) *MiniProgramPaid {
 	mpb.mchID = mchID
 	return mpb
 }
 
 // SetOutTradeNo SetOutTradeNo
-func (mpb *MiniProgramBase) SetOutTradeNo(outTradeNo string) *MiniProgramBase {
+func (mpb *MiniProgramPaid) SetOutTradeNo(outTradeNo string) *MiniProgramPaid {
 	mpb.outTradeNo = outTradeNo
 	return mpb
 }
 
 // SetUsingTransID SetUsingTransID
-func (mpb *MiniProgramBase) SetUsingTransID() *MiniProgramBase {
+func (mpb *MiniProgramPaid) SetUsingTransID() *MiniProgramPaid {
 	mpb.usingTransID = true
 	return mpb
 }
 
 // Validate checks if the operation is valid.
-func (mpb *MiniProgramBase) Validate() error {
+func (mpb *MiniProgramPaid) Validate() error {
 	var invalid []string
 	if mpb.openid == "" {
 		invalid = append(invalid, "openid")
@@ -90,7 +90,7 @@ func (mpb *MiniProgramBase) Validate() error {
 }
 
 // Do Do
-func (mpb *MiniProgramBase) Do(ctx context.Context) (*MiniProgramBaseResponse, error) {
+func (mpb *MiniProgramPaid) Do(ctx context.Context) (*MiniProgramPaidResponse, error) {
 	// Check pre-conditions
 	if err := mpb.Validate(); err != nil {
 		return nil, err
@@ -110,21 +110,21 @@ func (mpb *MiniProgramBase) Do(ctx context.Context) (*MiniProgramBaseResponse, e
 		Method:   http.MethodGet,
 		Params:   params,
 		BaseURI:  MiniProgramBaseURI,
-		Endpoint: MiniProgramBaseEndpoint,
+		Endpoint: MiniProgramPaidEndpoint,
 	})
 	if err != nil {
 		return nil, err
 	}
 	// Return operation response
-	ret := new(MiniProgramBaseResponse)
+	ret := new(MiniProgramPaidResponse)
 	if err := mpb.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// MiniProgramBaseResponse MiniProgramBaseResponse
-type MiniProgramBaseResponse struct {
+// MiniProgramPaidResponse MiniProgramPaidResponse
+type MiniProgramPaidResponse struct {
 	CommonError
 	UnionID string `json:"unionid"`
 }

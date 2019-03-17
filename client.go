@@ -390,9 +390,9 @@ func (c *Client) MiniProgramAccessToken() *MiniProgramAccessToken {
 	return NewMiniProgramAccessToken(c)
 }
 
-// MiniProgramBase Miniprogram Auth
-func (c *Client) MiniProgramBase() *MiniProgramBase {
-	return NewMiniProgramBase(c)
+// MiniProgramPaid Miniprogram Auth
+func (c *Client) MiniProgramPaid() *MiniProgramPaid {
+	return NewMiniProgramPaid(c)
 }
 
 // MiniProgramActivityMessageCreate MiniProgramActivityMessageCreate
