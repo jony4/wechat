@@ -421,8 +421,13 @@ func (c *Client) MiniProgramAppCodeCreate() *MiniProgramAppCodeCreate {
 }
 
 // MiniProgramTemplateUniformSend MiniProgramTemplateUniformSend
-func (c *Client) MiniProgramTemplateUniformSend() *MiniProgramTemplateUniform {
-	return NewMiniProgramTemplateUniform(c)
+func (c *Client) MiniProgramTemplateUniformSend() *MiniProgramTemplateUniformMessage {
+	return NewMiniProgramTemplateUniformMessage(c)
+}
+
+// MiniProgramTemplateMessage MiniProgramTemplateMessage
+func (c *Client) MiniProgramTemplateMessage() *MiniProgramTemplateMessage {
+	return NewMiniProgramTemplateMessage(c)
 }
 
 // -- Basic API --

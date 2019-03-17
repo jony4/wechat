@@ -8,20 +8,20 @@ import (
 )
 
 const (
-	// MiniProgramTemplateUniformEndpoint Endpoint
-	MiniProgramTemplateUniformEndpoint = "cgi-bin/message/wxopen/template/uniform_send"
+	// MiniProgramTemplateUniformMessageEndpoint Endpoint
+	MiniProgramTemplateUniformMessageEndpoint = "cgi-bin/message/wxopen/template/uniform_send"
 )
 
-// MiniProgramTemplateUniform TemplateUniform
-type MiniProgramTemplateUniform struct {
+// MiniProgramTemplateUniformMessage TemplateUniform
+type MiniProgramTemplateUniformMessage struct {
 	client *Client
 
 	accessToken string
-	body        *MiniProgramTemplateUniformBody
+	body        *MiniProgramTemplateUniformMessageBody
 }
 
-// MiniProgramTemplateUniformBody MiniProgramTemplateUniformBody
-type MiniProgramTemplateUniformBody struct {
+// MiniProgramTemplateUniformMessageBody MiniProgramTemplateUniformMessageBody
+type MiniProgramTemplateUniformMessageBody struct {
 	Touser           string           `json:"touser"`
 	WeappTemplateMsg WeappTemplateMsg `json:"weapp_template_msg"`
 	MpTemplateMsg    MpTemplateMsg    `json:"mp_template_msg"`
@@ -50,28 +50,28 @@ type MpTemplateMsg struct {
 	Data map[string]map[string]string `json:"data"`
 }
 
-// NewMiniProgramTemplateUniform return instance of NewMiniProgramTemplateUniform
-func NewMiniProgramTemplateUniform(client *Client) *MiniProgramTemplateUniform {
-	mptu := &MiniProgramTemplateUniform{
+// NewMiniProgramTemplateUniformMessage return instance of NewMiniProgramTemplateUniformMessage
+func NewMiniProgramTemplateUniformMessage(client *Client) *MiniProgramTemplateUniformMessage {
+	mptu := &MiniProgramTemplateUniformMessage{
 		client: client,
 	}
 	return mptu
 }
 
 // SetAccessToken SetAccessToken
-func (mptu *MiniProgramTemplateUniform) SetAccessToken(accessToken string) *MiniProgramTemplateUniform {
+func (mptu *MiniProgramTemplateUniformMessage) SetAccessToken(accessToken string) *MiniProgramTemplateUniformMessage {
 	mptu.accessToken = accessToken
 	return mptu
 }
 
 // SetBody SetBody
-func (mptu *MiniProgramTemplateUniform) SetBody(body *MiniProgramTemplateUniformBody) *MiniProgramTemplateUniform {
+func (mptu *MiniProgramTemplateUniformMessage) SetBody(body *MiniProgramTemplateUniformMessageBody) *MiniProgramTemplateUniformMessage {
 	mptu.body = body
 	return mptu
 }
 
 // Validate checks if the operation is valid.
-func (mptu *MiniProgramTemplateUniform) Validate() error {
+func (mptu *MiniProgramTemplateUniformMessage) Validate() error {
 	var invalid []string
 	if mptu.accessToken == "" {
 		invalid = append(invalid, "access_token")
@@ -86,7 +86,7 @@ func (mptu *MiniProgramTemplateUniform) Validate() error {
 }
 
 // Do Do
-func (mptu *MiniProgramTemplateUniform) Do(ctx context.Context) (*MiniProgramTemplateUniformResponse, error) {
+func (mptu *MiniProgramTemplateUniformMessage) Do(ctx context.Context) (*MiniProgramTemplateUniformMessageResponse, error) {
 	// Check pre-conditions
 	if err := mptu.Validate(); err != nil {
 		return nil, err
@@ -100,20 +100,20 @@ func (mptu *MiniProgramTemplateUniform) Do(ctx context.Context) (*MiniProgramTem
 		Params:   params,
 		Body:     mptu.body,
 		BaseURI:  MiniProgramBaseURI,
-		Endpoint: MiniProgramTemplateUniformEndpoint,
+		Endpoint: MiniProgramTemplateUniformMessageEndpoint,
 	})
 	if err != nil {
 		return nil, err
 	}
 	// Return operation response
-	ret := new(MiniProgramTemplateUniformResponse)
+	ret := new(MiniProgramTemplateUniformMessageResponse)
 	if err := mptu.client.decoder.Decode(res.Body, ret); err != nil {
 		return nil, err
 	}
 	return ret, nil
 }
 
-// MiniProgramTemplateUniformResponse MiniProgramTemplateUniformResponse
-type MiniProgramTemplateUniformResponse struct {
+// MiniProgramTemplateUniformMessageResponse MiniProgramTemplateUniformMessageResponse
+type MiniProgramTemplateUniformMessageResponse struct {
 	CommonError
 }
