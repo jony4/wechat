@@ -436,3 +436,10 @@ func (c *Client) MiniProgramTemplateMessage() *MiniProgramTemplateMessage {
 func (c *Client) BasicAccessToken(accessToken IAccessToken) *BasicAccessToken {
 	return NewBasicAccessToken(c, accessToken)
 }
+
+// -- Work API --
+
+// WorkAccessToken WorkAccessToken
+func (c *Client) WorkAccessToken() *WorkAccessToken {
+	return NewWorkAccessToken(c)
+}

@@ -18,7 +18,6 @@ type WorkAccessToken struct {
 
 	corpid     string
 	corpsecret string
-	grantType  string
 }
 
 // NewWorkAccessToken return instance of WorkAccessToken
@@ -26,7 +25,6 @@ func NewWorkAccessToken(client *Client) *WorkAccessToken {
 	wat := &WorkAccessToken{
 		client: client,
 	}
-	wat.SetGrantType()
 	return wat
 }
 
@@ -39,12 +37,6 @@ func (wat *WorkAccessToken) SetSecret(corpsecret string) *WorkAccessToken {
 // SetAppID SetAppID
 func (wat *WorkAccessToken) SetAppID(corpid string) *WorkAccessToken {
 	wat.corpid = corpid
-	return wat
-}
-
-// SetGrantType SetGrantType
-func (wat *WorkAccessToken) SetGrantType() *WorkAccessToken {
-	wat.grantType = "client_credential"
 	return wat
 }
 
@@ -73,7 +65,6 @@ func (wat *WorkAccessToken) Do(ctx context.Context) (*WorkAccessTokenResponse, e
 	params := url.Values{}
 	params.Set("corpid", wat.corpid)
 	params.Set("corpsecret", wat.corpsecret)
-	params.Set("grant_type", wat.grantType)
 	// PerformRequest
 	res, err := wat.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
@@ -110,7 +101,7 @@ func (wat *WorkAccessToken) Credentials(ctx context.Context) (*AccessToken, erro
 
 // ToString ToString
 func (wat *WorkAccessToken) ToString() string {
-	return fmt.Sprintf("%s_%s_%s", wat.grantType, wat.corpid, wat.corpsecret)
+	return fmt.Sprintf("%s_%s", wat.corpid, wat.corpsecret)
 }
 
 // WorkAccessTokenResponse WorkAccessTokenResponse
