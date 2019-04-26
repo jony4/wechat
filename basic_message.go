@@ -25,7 +25,7 @@ type BasicMessage struct {
 }
 
 // NewBasicMessage NewBasicMessage
-func NewBasicMessage(c *Client, message IBasicMessage, accessToken IAccessToken) *BasicMessage {
+func NewBasicMessage(c *Client, accessToken IAccessToken, message IBasicMessage) *BasicMessage {
 	bm := &BasicMessage{
 		client:      c,
 		message:     message,

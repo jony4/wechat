@@ -437,6 +437,11 @@ func (c *Client) BasicAccessToken(accessToken IAccessToken) *BasicAccessToken {
 	return NewBasicAccessToken(c, accessToken)
 }
 
+// BasicMessage BasicMessage
+func (c *Client) BasicMessage(accessToken IAccessToken, message IBasicMessage) *BasicMessage {
+	return NewBasicMessage(c, accessToken, message)
+}
+
 // -- Work API --
 
 // WorkAccessToken WorkAccessToken
