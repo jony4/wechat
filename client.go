@@ -345,6 +345,12 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 	// Get response
 	res, err := c.httpClient.Do((*http.Request)(req).WithContext(ctx))
+
+	if err != nil {
+		c.errorf("wechat: couldn't do request body %+v for request: %v", opt.Body, err)
+		return nil, err
+	}
+
 	if IsContextErr(err) {
 		return nil, err
 	}
