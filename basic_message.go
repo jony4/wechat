@@ -41,13 +41,10 @@ func (bm *BasicMessage) Send(ctx context.Context) error {
 		return err
 	}
 	// accessToken
-	at, err := bm.accessToken.Credentials(ctx)
-	if err != nil {
-		return err
-	}
+	at := bm.client.BasicAccessToken(bm.accessToken).GetToken(ctx, false)
 	// url params
 	params := bm.message.Params()
-	params.Set("access_token", at.AccessToken)
+	params.Set("access_token", at)
 	// body
 	bodybyte, err := json.Marshal(bm.message.Body())
 	if err != nil {
