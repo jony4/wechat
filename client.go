@@ -127,7 +127,7 @@ func SetHTTPClient(httpClient *http.Client) ClientOptionFunc {
 }
 
 // SetHTTPClientInsecureSkipVerify SetHTTPClientInsecureSkipVerify
-func SetHTTPClientInsecureSkipVerify(httpClient *http.Client) ClientOptionFunc {
+func SetHTTPClientInsecureSkipVerify() ClientOptionFunc {
 	return func(c *Client) error {
 		transport := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
