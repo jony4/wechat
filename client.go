@@ -2,6 +2,7 @@ package wechat
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
@@ -121,6 +122,17 @@ func SetHTTPClient(httpClient *http.Client) ClientOptionFunc {
 		} else {
 			c.httpClient = http.DefaultClient
 		}
+		return nil
+	}
+}
+
+// SetHTTPClientInsecureSkipVerify SetHTTPClientInsecureSkipVerify
+func SetHTTPClientInsecureSkipVerify(httpClient *http.Client) ClientOptionFunc {
+	return func(c *Client) error {
+		transport := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		c.httpClient.Transport = transport
 		return nil
 	}
 }
