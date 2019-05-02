@@ -438,17 +438,12 @@ func (c *Client) MiniProgramAppCodeCreate() *MiniProgramAppCodeCreate {
 	return NewMiniProgramAppCodeCreate(c)
 }
 
-// MiniProgramTemplateUniformSend MiniProgramTemplateUniformSend
-func (c *Client) MiniProgramTemplateUniformSend() *MiniProgramTemplateUniformMessage {
-	return NewMiniProgramTemplateUniformMessage(c)
-}
-
 // MiniProgramTemplateMessage MiniProgramTemplateMessage
 func (c *Client) MiniProgramTemplateMessage() *MiniProgramTemplateMessage {
 	return NewMiniProgramTemplateMessage(c)
 }
 
-// -- Basic API --
+// -- Basic Common API --
 
 // BasicAccessToken BasicAccessToken
 func (c *Client) BasicAccessToken(accessToken IAccessToken) *BasicAccessToken {
