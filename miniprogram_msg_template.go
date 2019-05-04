@@ -1,9 +1,7 @@
 package wechat
 
 import (
-	"context"
-	"fmt"
-	"net/http"
+	"errors"
 	"net/url"
 )
 
@@ -14,10 +12,8 @@ const (
 
 // MiniProgramTemplateMessage TemplateUniform
 type MiniProgramTemplateMessage struct {
-	client *Client
-
-	accessToken string
-	body        *MiniProgramTemplateMessageBody
+	MsgBody   *MiniProgramUniformMessageBody
+	MsgParams url.Values
 }
 
 // MiniProgramTemplateMessageBody MiniProgramTemplateMessageBody
@@ -32,70 +28,38 @@ type MiniProgramTemplateMessageBody struct {
 	EmphasisKeyword string `json:"emphasis_keyword"`
 }
 
-// NewMiniProgramTemplateMessage return instance of NewMiniProgramTemplateMessage
-func NewMiniProgramTemplateMessage(client *Client) *MiniProgramTemplateMessage {
-	mpt := &MiniProgramTemplateMessage{
-		client: client,
-	}
-	return mpt
+// NewMiniProgramTemplateMessage NewMiniProgramTemplateMessage
+func NewMiniProgramTemplateMessage() *MiniProgramTemplateMessage {
+	return &MiniProgramTemplateMessage{}
 }
 
-// SetAccessToken SetAccessToken
-func (mpt *MiniProgramTemplateMessage) SetAccessToken(accessToken string) *MiniProgramTemplateMessage {
-	mpt.accessToken = accessToken
-	return mpt
+// Body Body
+func (mptm *MiniProgramTemplateMessage) Body() interface{} {
+	return mptm.MsgBody
 }
 
-// SetBody SetBody
-func (mpt *MiniProgramTemplateMessage) SetBody(body *MiniProgramTemplateMessageBody) *MiniProgramTemplateMessage {
-	mpt.body = body
-	return mpt
-}
-
-// Validate checks if the operation is valid.
-func (mpt *MiniProgramTemplateMessage) Validate() error {
-	var invalid []string
-	if mpt.accessToken == "" {
-		invalid = append(invalid, "access_token")
+// Validate Validate
+func (mptm *MiniProgramTemplateMessage) Validate() error {
+	if mptm.MsgBody == nil {
+		return errors.New("body is nil")
 	}
-	if mpt.body == nil {
-		invalid = append(invalid, "body")
-	}
-	if len(invalid) > 0 {
-		return fmt.Errorf("missing required fields: %v", invalid)
+	if mptm.MsgParams == nil {
+		mptm.MsgParams = url.Values{}
 	}
 	return nil
 }
 
-// Do Do
-func (mpt *MiniProgramTemplateMessage) Do(ctx context.Context) (*MiniProgramTemplateMessageResponse, error) {
-	// Check pre-conditions
-	if err := mpt.Validate(); err != nil {
-		return nil, err
-	}
-	// url params
-	params := url.Values{}
-	params.Set("access_token", mpt.accessToken)
-	// PerformRequest
-	res, err := mpt.client.PerformRequest(ctx, PerformRequestOptions{
-		Method:   http.MethodPost,
-		Params:   params,
-		Body:     mpt.body,
-		BaseURI:  MiniProgramBaseURI,
-		Endpoint: MiniProgramTemplateMessageEndpoint,
-	})
-	if err != nil {
-		return nil, err
-	}
-	// Return operation response
-	ret := new(MiniProgramTemplateMessageResponse)
-	if err := mpt.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
-	}
-	return ret, nil
+// BaseURI BaseURI
+func (mptm *MiniProgramTemplateMessage) BaseURI() string {
+	return MiniProgramBaseURI
 }
 
-// MiniProgramTemplateMessageResponse MiniProgramTemplateMessageResponse
-type MiniProgramTemplateMessageResponse struct {
-	CommonError
+// Endpoint Endpoint
+func (mptm *MiniProgramTemplateMessage) Endpoint() string {
+	return MiniProgramTemplateMessageEndpoint
+}
+
+// Params Params
+func (mptm *MiniProgramTemplateMessage) Params() url.Values {
+	return mptm.MsgParams
 }
