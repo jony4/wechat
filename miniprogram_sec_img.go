@@ -21,7 +21,7 @@ type MiniProgramSecImg struct {
 	client *Client
 
 	accessToken string
-	media       string
+	media       []byte
 }
 
 // NewMiniProgramSecImg return instance of NewMiniProgramSecImg
@@ -39,7 +39,7 @@ func (mpb *MiniProgramSecImg) SetAccessToken(accessToken string) *MiniProgramSec
 }
 
 // SetMedia SetMedia
-func (mpb *MiniProgramSecImg) SetMedia(media string) *MiniProgramSecImg {
+func (mpb *MiniProgramSecImg) SetMedia(media []byte) *MiniProgramSecImg {
 	mpb.media = media
 	return mpb
 }
@@ -68,11 +68,12 @@ func (mpb *MiniProgramSecImg) Do(ctx context.Context) (*MiniProgramSecImgRespons
 	params := url.Values{}
 	params.Set("access_token", mpb.accessToken)
 
-	res, err := mpb.client.PerformRequest(ctx, PerformRequestOptions{
+	res, err := mpb.client.PerformFormRequest(ctx, PerformRequestOptions{
 		Method:        http.MethodPost,
 		Params:        params,
-		FormValue:     []byte(mpb.media),
+		FormValue:     mpb.media,
 		FormFieldName: "media",
+		FormFileName:  "file",
 		BaseURI:       MiniProgramBaseURI,
 		Endpoint:      MiniProgramSecImgEndpoint,
 	})

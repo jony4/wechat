@@ -15,14 +15,13 @@ import (
 type Request http.Request
 
 // NewRequest is a http.Request and adds features such as encoding the body.
-func NewRequest(method, url string) (*Request, error) {
-	req, err := http.NewRequest(method, url, nil)
+func NewRequest(method, url string, body io.Reader) (*Request, error) {
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("User-Agent", "jony4/wechat:"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 	req.Header.Add("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
 	return (*Request)(req), nil
 }
 

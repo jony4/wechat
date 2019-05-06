@@ -1,16 +1,20 @@
 package wechat
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -293,6 +297,9 @@ type PerformRequestOptions struct {
 	Method          string
 	Params          url.Values
 	Body            interface{}
+	FormValue       []byte
+	FormFieldName   string
+	FormFileName    string
 	ContentType     string
 	IgnoreErrors    []int
 	Headers         http.Header
@@ -325,7 +332,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		opt.Method = sendGetBodyAs
 	}
 
-	req, err = NewRequest(opt.Method, pathWithParams)
+	req, err = NewRequest(opt.Method, pathWithParams, nil)
 	if err != nil {
 		c.errorf("wechat: cannot create request for %s %s: %v", strings.ToUpper(opt.Method), pathWithParams, err)
 		return nil, err
@@ -350,6 +357,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 			c.errorf("wechat: couldn't set body %+v for request: %v", opt.Body, err)
 			return nil, err
 		}
+		req.Header.Set("Content-Type", "application/json")
 	}
 
 	// Tracing
@@ -376,6 +384,101 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 	// Check for errors
 	if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
+		// We still try to return a response.
+		resp, _ = c.newResponse(res, opt.MaxResponseSize)
+		return resp, err
+	}
+
+	resp, err = c.newResponse(res, opt.MaxResponseSize)
+	if err != nil {
+		return nil, err
+	}
+
+	duration := time.Now().UTC().Sub(start)
+	c.infof("%s %s [status:%d, request:%.3fs]",
+		strings.ToUpper(opt.Method),
+		req.URL,
+		resp.StatusCode,
+		float64(int64(duration/time.Millisecond))/1000)
+
+	return resp, nil
+}
+
+// resp, err := http.Post(pathWithParams, bodyWriter.FormDataContentType(), buf)
+
+// PerformFormRequest does a HTTP request to wechat.
+func (c *Client) PerformFormRequest(ctx context.Context, opt PerformRequestOptions) (*Response, error) {
+	start := time.Now().UTC()
+
+	c.mu.Lock()
+	sendGetBodyAs := c.sendGetBodyAs
+	pathWithParams := fmt.Sprintf("%s://%s/%s", c.scheme, opt.BaseURI, opt.Endpoint)
+	if len(opt.Params) > 0 {
+		pathWithParams += "?" + opt.Params.Encode()
+	}
+	c.mu.Unlock()
+
+	// Change method if sendGetBodyAs is specified.
+	if opt.Method == "GET" && opt.Body != nil && sendGetBodyAs != "GET" {
+		opt.Method = sendGetBodyAs
+	}
+
+	bodyBuf := &bytes.Buffer{}
+	bodyWriter := multipart.NewWriter(bodyBuf)
+	fileWriter, err := bodyWriter.CreateFormFile(opt.FormFieldName, opt.FormFileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "CreateFormFile")
+	}
+	if _, err := io.Copy(fileWriter, bytes.NewReader(opt.FormValue)); err != nil {
+		return nil, errors.Wrap(err, "io.Copy")
+	}
+	contentType := bodyWriter.FormDataContentType()
+	bodyWriter.Close()
+
+	var (
+		req  *Request
+		resp *Response
+	)
+
+	req, err = NewRequest(opt.Method, pathWithParams, bodyBuf)
+	if err != nil {
+		c.errorf("wechat: cannot create request for %s %s: %v", strings.ToUpper(opt.Method), pathWithParams, err)
+		return nil, err
+	}
+
+	if len(opt.Headers) > 0 {
+		for key, value := range opt.Headers {
+			for _, v := range value {
+				req.Header.Add(key, v)
+			}
+		}
+	}
+	req.Header.Set("Content-Type", contentType)
+
+	// Tracing
+	c.dumpRequest((*http.Request)(req))
+
+	// Get response
+	res, err := c.httpClient.Do((*http.Request)(req).WithContext(ctx))
+
+	if err != nil {
+		c.errorf("wechat: couldn't do request body %+v for request: %v", opt.Body, err)
+		return nil, err
+	}
+
+	if IsContextErr(err) {
+		return nil, err
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	// // Tracing
+	c.dumpResponse(res)
+
+	// // Check for errors
+	if err := checkResponse(nil, res, opt.IgnoreErrors...); err != nil {
 		// We still try to return a response.
 		resp, _ = c.newResponse(res, opt.MaxResponseSize)
 		return resp, err
@@ -436,6 +539,11 @@ func (c *Client) MiniProgramAppCodeGetUnlimit() *MiniProgramAppCodeGetUnlimit {
 // MiniProgramAppCodeCreate MiniProgramAppCodeCreate
 func (c *Client) MiniProgramAppCodeCreate() *MiniProgramAppCodeCreate {
 	return NewMiniProgramAppCodeCreate(c)
+}
+
+// MiniProgramSecImg MiniProgramSecImg
+func (c *Client) MiniProgramSecImg() *MiniProgramSecImg {
+	return NewMiniProgramSecImg(c)
 }
 
 // -- Basic Common API --
