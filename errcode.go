@@ -2,6 +2,8 @@ package wechat
 
 import (
 	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 // CommonError CommonError
@@ -13,7 +15,8 @@ type CommonError struct {
 // DecodeWithCommonError DecodeWithCommonError
 func DecodeWithCommonError(apiName string, ce CommonError) (err error) {
 	if ce.ErrCode != 0 {
-		return fmt.Errorf("%s Error , errcode=%d , errmsg=%s", apiName, ce.ErrCode, ce.ErrMsg)
+		err = fmt.Errorf("%s Error , errcode=%d , errmsg=%s", apiName, ce.ErrCode, ce.ErrMsg)
+		return errors.Wrap(err, "DecodeWithCommonError")
 	}
 	return nil
 }

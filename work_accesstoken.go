@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -59,7 +61,7 @@ func (wat *WorkAccessToken) Validate() error {
 func (wat *WorkAccessToken) Do(ctx context.Context) (*WorkAccessTokenResponse, error) {
 	// Check pre-conditions
 	if err := wat.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "WorkAccessToken.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -73,12 +75,12 @@ func (wat *WorkAccessToken) Do(ctx context.Context) (*WorkAccessTokenResponse, e
 		Endpoint: WorkAccessTokenEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "WorkAccessToken.Do")
 	}
 	// Return operation response
 	ret := new(WorkAccessTokenResponse)
 	if err := wat.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "WorkAccessToken.Do")
 	}
 	return ret, nil
 }
@@ -87,7 +89,7 @@ func (wat *WorkAccessToken) Do(ctx context.Context) (*WorkAccessTokenResponse, e
 func (wat *WorkAccessToken) Credentials(ctx context.Context) (*AccessToken, error) {
 	res, err := wat.Do(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "WorkAccessToken.Credentials")
 	}
 	if res.ErrCode != 0 {
 		return nil, fmt.Errorf("errcode: %v, errmsg: %s", res.ErrCode, res.ErrMsg)

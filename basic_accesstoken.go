@@ -53,6 +53,7 @@ func (bat *BasicAccessToken) SetToken(ctx context.Context, at *AccessToken) erro
 func (bat *BasicAccessToken) GetToken(ctx context.Context, refresh bool) (accessToken string) {
 	if !refresh {
 		value, err := bat.client.cache.Get(ctx, bat.cacheKey())
+		bat.client.tracef("GetToken cache get err: %v", err)
 		if err != nil && err != ErrCacheKeyNotExist {
 			return
 		} else if err == ErrCacheKeyNotExist {
@@ -64,9 +65,11 @@ func (bat *BasicAccessToken) GetToken(ctx context.Context, refresh bool) (access
 	if refresh {
 		at, err := bat.iat.Credentials(ctx)
 		if err != nil {
+			bat.client.errorf("GetToken Credentials err: %v", err)
 			return
 		}
 		if err := bat.SetToken(ctx, at); err != nil {
+			bat.client.errorf("GetToken SetToken err: %v", err)
 			return
 		}
 		accessToken = at.AccessToken

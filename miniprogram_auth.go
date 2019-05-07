@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -77,7 +79,7 @@ func (mpa *MiniProgramAuth) Validate() error {
 func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, error) {
 	// Check pre-conditions
 	if err := mpa.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAuth.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -93,7 +95,7 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 		Endpoint: MiniProgramAuthEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAuth.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramAuthResponse)
@@ -101,7 +103,7 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 		return nil, err
 	}
 	if err := DecodeWithCommonError(fmt.Sprintf("miniprogram: %s", MiniProgramAuthEndpoint), ret.CommonError); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAuth.Do")
 	}
 	return ret, nil
 }

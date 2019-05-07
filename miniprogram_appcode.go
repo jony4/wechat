@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 // Endpoint
@@ -95,7 +97,7 @@ func (mpb *MiniProgramAppCodeGet) Validate() error {
 func (mpb *MiniProgramAppCodeGet) Do(ctx context.Context) (*MiniProgramAppCodeGetResponse, error) {
 	// Check pre-conditions
 	if err := mpb.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeGet.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -115,12 +117,12 @@ func (mpb *MiniProgramAppCodeGet) Do(ctx context.Context) (*MiniProgramAppCodeGe
 		Endpoint: MiniProgramAppCodeGetEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeGet.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramAppCodeGetResponse)
 	if err := mpb.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeGet.Do")
 	}
 	return ret, nil
 }
@@ -212,7 +214,7 @@ func (mpb *MiniProgramAppCodeGetUnlimit) Validate() error {
 func (mpb *MiniProgramAppCodeGetUnlimit) Do(ctx context.Context) (*MiniProgramAppCodeGetUnlimitResponse, error) {
 	// Check pre-conditions
 	if err := mpb.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeGetUnlimit.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -232,12 +234,12 @@ func (mpb *MiniProgramAppCodeGetUnlimit) Do(ctx context.Context) (*MiniProgramAp
 		Endpoint: MiniProgramAppCodeGetUnlimitEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeGetUnlimit.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramAppCodeGetUnlimitResponse)
 	if err := mpb.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeGetUnlimit.Do")
 	}
 	return ret, nil
 }
@@ -329,7 +331,7 @@ func (mpb *MiniProgramAppCodeCreate) Validate() error {
 func (mpb *MiniProgramAppCodeCreate) Do(ctx context.Context) (*MiniProgramAppCodeCreateResponse, error) {
 	// Check pre-conditions
 	if err := mpb.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeCreate.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -349,12 +351,12 @@ func (mpb *MiniProgramAppCodeCreate) Do(ctx context.Context) (*MiniProgramAppCod
 		Endpoint: MiniProgramAppCodeCreateEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeCreate.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramAppCodeCreateResponse)
 	if err := mpb.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAppCodeCreate.Do")
 	}
 	return ret, nil
 }

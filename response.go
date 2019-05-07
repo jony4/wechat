@@ -2,10 +2,11 @@ package wechat
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 var (
@@ -40,7 +41,7 @@ func (c *Client) newResponse(res *http.Response, maxBodySize int64) (*Response, 
 		}
 		slurp, err := ioutil.ReadAll(body)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "Response.newResponse")
 		}
 		if maxBodySize > 0 && int64(len(slurp)) > maxBodySize {
 			return nil, ErrResponseSize

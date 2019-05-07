@@ -10,12 +10,13 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"math/rand"
 	"sort"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // EncryptMsg EncryptMsg
@@ -23,15 +24,15 @@ func EncryptMsg(random, rawXMLMsg []byte, appID, aesKey string) (encrtptMsg []by
 	var key []byte
 	key, err = aesKeyDecode(aesKey)
 	if err != nil {
-		return []byte{}, err
+		return []byte{}, errors.Wrap(err, "EncryptMsg")
 	}
-	ciphertext := AESEncryptMsg(random, rawXMLMsg, appID, key)
+	ciphertext, err := AESEncryptMsg(random, rawXMLMsg, appID, key)
 	encrtptMsg = []byte(base64.StdEncoding.EncodeToString(ciphertext))
-	return
+	return encrtptMsg, errors.Wrap(err, "EncryptMsg")
 }
 
 // AESEncryptMsg ciphertext = AES_Encrypt[random(16B) + msg_len(4B) + rawXMLMsg + appId]
-func AESEncryptMsg(random, rawXMLMsg []byte, appID string, aesKey []byte) (ciphertext []byte) {
+func AESEncryptMsg(random, rawXMLMsg []byte, appID string, aesKey []byte) (ciphertext []byte, err error) {
 	const (
 		BlockSize = 32            // PKCS#7
 		BlockMask = BlockSize - 1 // BLOCK_SIZE 为 2^n 时, 可以用 mask 获取针对 BLOCK_SIZE 的余数
@@ -55,7 +56,7 @@ func AESEncryptMsg(random, rawXMLMsg []byte, appID string, aesKey []byte) (ciphe
 
 	block, err := aes.NewCipher(aesKey[:])
 	if err != nil {
-		panic(err)
+		return ciphertext, errors.Wrap(err, "AESEncryptMsg")
 	}
 	mode := cipher.NewCBCEncrypter(block, aesKey[:16])
 	mode.CryptBlocks(plaintext, plaintext)
@@ -69,20 +70,19 @@ func DecryptMsg(appID, encryptedMsg, aesKey string) (random, rawMsgXMLBytes []by
 	var encryptedMsgBytes, key, getAppIDBytes []byte
 	encryptedMsgBytes, err = base64.StdEncoding.DecodeString(encryptedMsg)
 	if err != nil {
-		return
+		return random, rawMsgXMLBytes, errors.Wrap(err, "DecryptMsg")
 	}
 	key, err = aesKeyDecode(aesKey)
 	if err != nil {
-		return
+		return random, rawMsgXMLBytes, errors.Wrap(err, "DecryptMsg")
 	}
 	random, rawMsgXMLBytes, getAppIDBytes, err = AESDecryptMsg(encryptedMsgBytes, key)
 	if err != nil {
-		err = fmt.Errorf("DecryptMsg failed, %v", err)
-		return
+		return random, rawMsgXMLBytes, errors.Wrap(err, "DecryptMsg")
 	}
 	if appID != string(getAppIDBytes) {
-		err = fmt.Errorf("DecryptMsg appId caused failed")
-		return
+		err = fmt.Errorf("DecryptMsg appId caused failed: appid != getAppIDBytes")
+		return random, rawMsgXMLBytes, errors.Wrap(err, "DecryptMsg")
 	}
 	return
 }
@@ -90,15 +90,16 @@ func DecryptMsg(appID, encryptedMsg, aesKey string) (random, rawMsgXMLBytes []by
 func aesKeyDecode(encodedAESKey string) (key []byte, err error) {
 	if len(encodedAESKey) != 43 {
 		err = fmt.Errorf("the length of encodedAESKey must be equal to 43")
-		return
+		return key, errors.Wrap(err, "aesKeyDecode")
 	}
 	key, err = base64.StdEncoding.DecodeString(encodedAESKey + "=")
 	if err != nil {
-		return
+		err = fmt.Errorf("DecodeString %s err", encodedAESKey+"=")
+		return key, errors.Wrap(err, "aesKeyDecode")
 	}
 	if len(key) != 32 {
-		err = fmt.Errorf("encodingAESKey invalid")
-		return
+		err = fmt.Errorf("encodingAESKey invalid len(key) != 32")
+		return key, errors.Wrap(err, "aesKeyDecode")
 	}
 	return
 }
@@ -112,18 +113,18 @@ func AESDecryptMsg(ciphertext []byte, aesKey []byte) (random, rawXMLMsg, appID [
 
 	if len(ciphertext) < BlockSize {
 		err = fmt.Errorf("the length of ciphertext too short: %d", len(ciphertext))
-		return
+		return random, rawXMLMsg, appID, errors.Wrap(err, "AESDecryptMsg")
 	}
 	if len(ciphertext)&BlockMask != 0 {
 		err = fmt.Errorf("ciphertext is not a multiple of the block size, the length is %d", len(ciphertext))
-		return
+		return random, rawXMLMsg, appID, errors.Wrap(err, "AESDecryptMsg")
 	}
 
 	plaintext := make([]byte, len(ciphertext)) // len(plaintext) >= BLOCK_SIZE
 
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
-		return
+		return random, rawXMLMsg, appID, errors.Wrap(err, "AESDecryptMsg")
 	}
 	mode := cipher.NewCBCDecrypter(block, aesKey[:16])
 	mode.CryptBlocks(plaintext, ciphertext)
@@ -131,24 +132,24 @@ func AESDecryptMsg(ciphertext []byte, aesKey []byte) (random, rawXMLMsg, appID [
 	amountToPad := int(plaintext[len(plaintext)-1])
 	if amountToPad < 1 || amountToPad > BlockSize {
 		err = fmt.Errorf("the amount to pad is incorrect: %d", amountToPad)
-		return
+		return random, rawXMLMsg, appID, errors.Wrap(err, "AESDecryptMsg")
 	}
 	plaintext = plaintext[:len(plaintext)-amountToPad]
 
 	// len(plaintext) == 16+4+len(rawXMLMsg)+len(appId)
 	if len(plaintext) <= 20 {
 		err = fmt.Errorf("plaintext too short, the length is %d", len(plaintext))
-		return
+		return random, rawXMLMsg, appID, errors.Wrap(err, "AESDecryptMsg")
 	}
 	rawXMLMsgLen := int(decodeNetworkByteOrder(plaintext[16:20]))
 	if rawXMLMsgLen < 0 {
 		err = fmt.Errorf("incorrect msg length: %d", rawXMLMsgLen)
-		return
+		return random, rawXMLMsg, appID, errors.Wrap(err, "AESDecryptMsg")
 	}
 	appIDOffset := 20 + rawXMLMsgLen
 	if len(plaintext) <= appIDOffset {
 		err = fmt.Errorf("msg length too large: %d", rawXMLMsgLen)
-		return
+		return random, rawXMLMsg, appID, errors.Wrap(err, "AESDecryptMsg")
 	}
 
 	random = plaintext[:16:20]
@@ -256,25 +257,25 @@ func pkcs7Unpad(data []byte, blockSize int) ([]byte, error) {
 func (w *WXBizDataCrypt) Decrypt(encryptedData, iv string, data interface{}) error {
 	aesKey, err := base64.StdEncoding.DecodeString(w.sessionKey)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "WXBizDataCrypt.Decrypt")
 	}
 	cipherText, err := base64.StdEncoding.DecodeString(encryptedData)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "WXBizDataCrypt.Decrypt")
 	}
 	ivBytes, err := base64.StdEncoding.DecodeString(iv)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "WXBizDataCrypt.Decrypt")
 	}
 	block, err := aes.NewCipher(aesKey)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "WXBizDataCrypt.Decrypt")
 	}
 	mode := cipher.NewCBCDecrypter(block, ivBytes)
 	mode.CryptBlocks(cipherText, cipherText)
 	cipherText, err = pkcs7Unpad(cipherText, block.BlockSize())
 	if err != nil {
-		return err
+		return errors.Wrap(err, "WXBizDataCrypt.Decrypt")
 	}
 	return json.Unmarshal(cipherText, &data)
 }

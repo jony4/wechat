@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 // Endpoint
@@ -63,7 +65,7 @@ func (mpb *MiniProgramSecImg) Validate() error {
 func (mpb *MiniProgramSecImg) Do(ctx context.Context) (*MiniProgramSecImgResponse, error) {
 	// Check pre-conditions
 	if err := mpb.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramSecImg.Do")
 	}
 	params := url.Values{}
 	params.Set("access_token", mpb.accessToken)
@@ -78,12 +80,12 @@ func (mpb *MiniProgramSecImg) Do(ctx context.Context) (*MiniProgramSecImgRespons
 		Endpoint:      MiniProgramSecImgEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramSecImg.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramSecImgResponse)
 	if err := mpb.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramSecImg.Do")
 	}
 	return ret, nil
 }

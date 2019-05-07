@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -67,7 +69,7 @@ func (mpat *MiniProgramAccessToken) Validate() error {
 func (mpat *MiniProgramAccessToken) Do(ctx context.Context) (*MiniProgramAccessTokenResponse, error) {
 	// Check pre-conditions
 	if err := mpat.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAccessToken.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -82,12 +84,12 @@ func (mpat *MiniProgramAccessToken) Do(ctx context.Context) (*MiniProgramAccessT
 		Endpoint: MiniProgramAccessTokenEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAccessToken.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramAccessTokenResponse)
 	if err := mpat.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAccessToken.Do")
 	}
 	return ret, nil
 }
@@ -96,10 +98,11 @@ func (mpat *MiniProgramAccessToken) Do(ctx context.Context) (*MiniProgramAccessT
 func (mpat *MiniProgramAccessToken) Credentials(ctx context.Context) (*AccessToken, error) {
 	res, err := mpat.Do(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramAccessToken.Credentials")
 	}
 	if res.ErrCode != 0 {
-		return nil, fmt.Errorf("errcode: %v, errmsg: %s", res.ErrCode, res.ErrMsg)
+		err = fmt.Errorf("errcode: %v, errmsg: %s", res.ErrCode, res.ErrMsg)
+		return nil, errors.Wrap(err, "MiniProgramAccessToken.Credentials")
 	}
 	at := &AccessToken{
 		AccessToken: res.AccessToken,

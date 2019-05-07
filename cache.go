@@ -2,10 +2,10 @@ package wechat
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/patrickmn/go-cache"
+	"github.com/pkg/errors"
 )
 
 // Cache interface for store access token.
@@ -45,7 +45,7 @@ func NewMemCache(options ...MemCacheOptFunc) (*MemCache, error) {
 	}
 	for _, option := range options {
 		if err := option(mc); err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "NewMemCache.opt")
 		}
 	}
 	mc.cache = cache.New(mc.expiration, mc.interval)

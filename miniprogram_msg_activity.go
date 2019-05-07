@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 // Endpoint
@@ -51,7 +53,7 @@ func (mpam *MiniProgramActivityMessageCreate) Validate() error {
 func (mpam *MiniProgramActivityMessageCreate) Do(ctx context.Context) (*MiniProgramActivityMessageCreateResponse, error) {
 	// Check pre-conditions
 	if err := mpam.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramActivityMessageCreate.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -64,12 +66,12 @@ func (mpam *MiniProgramActivityMessageCreate) Do(ctx context.Context) (*MiniProg
 		Endpoint: MiniProgramActivityMessageCreateEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramActivityMessageCreate.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramActivityMessageCreateResponse)
 	if err := mpam.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramActivityMessageCreate.Do")
 	}
 	return ret, nil
 }
@@ -191,11 +193,11 @@ func (mpamu *MiniProgramActivityMessageUpdate) Validate() error {
 func (mpamu *MiniProgramActivityMessageUpdate) Do(ctx context.Context) (*MiniProgramActivityMessageUpdateResponse, error) {
 	// Check pre-conditions
 	if err := mpamu.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramActivityMessageUpdate.Do")
 	}
 	bodybyte, err := json.Marshal(mpamu.body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramActivityMessageUpdate.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -209,12 +211,12 @@ func (mpamu *MiniProgramActivityMessageUpdate) Do(ctx context.Context) (*MiniPro
 		Endpoint: MiniProgramActivityMessageUpdateEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramActivityMessageUpdate.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramActivityMessageUpdateResponse)
 	if err := mpamu.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramActivityMessageUpdate.Do")
 	}
 	return ret, nil
 }

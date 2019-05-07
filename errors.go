@@ -20,7 +20,7 @@ import (
 // is a valid response from wechat (e.g. the Exists service).
 //
 // The func tries to parse error details as returned from wechat
-// and encapsulates them in type elastic.Error.
+// and encapsulates them in type wechat.Error.
 func checkResponse(req *http.Request, res *http.Response, ignoreErrors ...int) error {
 	// 200-299 are valid status codes
 	if res.StatusCode >= 200 && res.StatusCode <= 299 {
@@ -66,7 +66,7 @@ type Error struct {
 }
 
 // ErrorDetails encapsulate error details from wechat.
-// It is used in e.g. elastic.Error and elastic.BulkResponseItem.
+// It is used in e.g. wechat.Error and wechat.BulkResponseItem.
 type ErrorDetails struct {
 	Type         string                   `json:"type"`
 	Reason       string                   `json:"reason"`
@@ -83,9 +83,9 @@ type ErrorDetails struct {
 // Error returns a string representation of the error.
 func (e *Error) Error() string {
 	if e.Details != nil && e.Details.Reason != "" {
-		return fmt.Sprintf("elastic: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
+		return fmt.Sprintf("wechat: Error %d (%s): %s [type=%s]", e.Status, http.StatusText(e.Status), e.Details.Reason, e.Details.Type)
 	}
-	return fmt.Sprintf("elastic: Error %d (%s)", e.Status, http.StatusText(e.Status))
+	return fmt.Sprintf("wechat: Error %d (%s)", e.Status, http.StatusText(e.Status))
 }
 
 // IsContextErr returns true if the error is from a context that was canceled or deadline exceeded
@@ -104,22 +104,22 @@ func IsContextErr(err error) bool {
 	return false
 }
 
-// IsConnErr returns true if the error indicates that Elastic could not
+// IsConnErr returns true if the error indicates that wechat could not
 // find an wechat host to connect to.
 func IsConnErr(err error) bool {
 	return err == ErrNoClient || errors.Cause(err) == ErrNoClient
 }
 
 // IsNotFound returns true if the given error indicates that wechat
-// returned HTTP status 404. The err parameter can be of type *elastic.Error,
-// elastic.Error, *http.Response or int (indicating the HTTP status code).
+// returned HTTP status 404. The err parameter can be of type *wechat.Error,
+// wechat.Error, *http.Response or int (indicating the HTTP status code).
 func IsNotFound(err interface{}) bool {
 	return IsStatusCode(err, http.StatusNotFound)
 }
 
 // IsTimeout returns true if the given error indicates that wechat
-// returned HTTP status 408. The err parameter can be of type *elastic.Error,
-// elastic.Error, *http.Response or int (indicating the HTTP status code).
+// returned HTTP status 408. The err parameter can be of type *wechat.Error,
+// wechat.Error, *http.Response or int (indicating the HTTP status code).
 func IsTimeout(err interface{}) bool {
 	return IsStatusCode(err, http.StatusRequestTimeout)
 }
@@ -127,7 +127,7 @@ func IsTimeout(err interface{}) bool {
 // IsConflict returns true if the given error indicates that the wechat
 // operation resulted in a version conflict. This can occur in operations like
 // `update` or `index` with `op_type=create`. The err parameter can be of
-// type *elastic.Error, elastic.Error, *http.Response or int (indicating the
+// type *wechat.Error, wechat.Error, *http.Response or int (indicating the
 // HTTP status code).
 func IsConflict(err interface{}) bool {
 	return IsStatusCode(err, http.StatusConflict)
@@ -135,7 +135,7 @@ func IsConflict(err interface{}) bool {
 
 // IsForbidden returns true if the given error indicates that wechat
 // returned HTTP status 403. This happens e.g. due to a missing license.
-// The err parameter can be of type *elastic.Error, elastic.Error,
+// The err parameter can be of type *wechat.Error, wechat.Error,
 // *http.Response or int (indicating the HTTP status code).
 func IsForbidden(err interface{}) bool {
 	return IsStatusCode(err, http.StatusForbidden)
@@ -156,24 +156,4 @@ func IsStatusCode(err interface{}, code int) bool {
 		return e == code
 	}
 	return false
-}
-
-// -- General errors --
-
-// ShardsInfo represents information from a shard.
-type ShardsInfo struct {
-	Total      int             `json:"total"`
-	Successful int             `json:"successful"`
-	Failed     int             `json:"failed"`
-	Failures   []*ShardFailure `json:"failures,omitempty"`
-}
-
-// ShardFailure represents details about a failure.
-type ShardFailure struct {
-	Index   string                 `json:"_index,omitempty"`
-	Shard   int                    `json:"_shard,omitempty"`
-	Node    string                 `json:"_node,omitempty"`
-	Reason  map[string]interface{} `json:"reason,omitempty"`
-	Status  string                 `json:"status,omitempty"`
-	Primary bool                   `json:"primary,omitempty"`
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -93,7 +95,7 @@ func (mpb *MiniProgramPaid) Validate() error {
 func (mpb *MiniProgramPaid) Do(ctx context.Context) (*MiniProgramPaidResponse, error) {
 	// Check pre-conditions
 	if err := mpb.Validate(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramPaid.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -113,12 +115,12 @@ func (mpb *MiniProgramPaid) Do(ctx context.Context) (*MiniProgramPaidResponse, e
 		Endpoint: MiniProgramPaidEndpoint,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramPaid.Do")
 	}
 	// Return operation response
 	ret := new(MiniProgramPaidResponse)
 	if err := mpb.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "MiniProgramPaid.Do")
 	}
 	return ret, nil
 }

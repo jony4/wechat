@@ -89,6 +89,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 	// Run the options on it
 	for _, option := range options {
 		if err := option(c); err != nil {
+			c.errorf("NewClient err %v", err)
 			return nil, err
 		}
 	}
@@ -99,6 +100,7 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 		cache, err := NewMemCache(opts...)
 		if err != nil {
+			c.errorf("NewClient.NewMemCache err %v", err)
 			return nil, err
 		}
 		c.cache = cache
@@ -372,6 +374,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	}
 
 	if IsContextErr(err) {
+		c.errorf("PerformRequest.IsContextErr err %v", err)
 		return nil, err
 	}
 
@@ -385,12 +388,14 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 	// Check for errors
 	if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
 		// We still try to return a response.
-		resp, _ = c.newResponse(res, opt.MaxResponseSize)
+		resp, err1 := c.newResponse(res, opt.MaxResponseSize)
+		c.tracef("PerformRequest.newResponse try again err %v", err1)
 		return resp, err
 	}
 
 	resp, err = c.newResponse(res, opt.MaxResponseSize)
 	if err != nil {
+		c.tracef("PerformRequest.newResponse err %v", err)
 		return nil, err
 	}
 
@@ -403,8 +408,6 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 
 	return resp, nil
 }
-
-// resp, err := http.Post(pathWithParams, bodyWriter.FormDataContentType(), buf)
 
 // PerformFormRequest does a HTTP request to wechat.
 func (c *Client) PerformFormRequest(ctx context.Context, opt PerformRequestOptions) (*Response, error) {
@@ -467,6 +470,7 @@ func (c *Client) PerformFormRequest(ctx context.Context, opt PerformRequestOptio
 	}
 
 	if IsContextErr(err) {
+		c.errorf("PerformRequest.IsContextErr err %v", err)
 		return nil, err
 	}
 
@@ -480,12 +484,14 @@ func (c *Client) PerformFormRequest(ctx context.Context, opt PerformRequestOptio
 	// // Check for errors
 	if err := checkResponse(nil, res, opt.IgnoreErrors...); err != nil {
 		// We still try to return a response.
-		resp, _ = c.newResponse(res, opt.MaxResponseSize)
+		resp, err1 := c.newResponse(res, opt.MaxResponseSize)
+		c.tracef("PerformRequest.newResponse try again err %v", err1)
 		return resp, err
 	}
 
 	resp, err = c.newResponse(res, opt.MaxResponseSize)
 	if err != nil {
+		c.tracef("PerformRequest.newResponse err %v", err)
 		return nil, err
 	}
 

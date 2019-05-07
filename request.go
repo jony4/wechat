@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // Request Wechat-specific HTTP request
@@ -18,7 +20,7 @@ type Request http.Request
 func NewRequest(method, url string, body io.Reader) (*Request, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "NewRequest")
 	}
 	req.Header.Add("User-Agent", "jony4/wechat:"+Version+" ("+runtime.GOOS+"-"+runtime.GOARCH+")")
 	req.Header.Add("Accept", "application/json")
@@ -66,10 +68,10 @@ func (r *Request) setBodyGzip(body interface{}) error {
 		buf := new(bytes.Buffer)
 		w := gzip.NewWriter(buf)
 		if _, err := w.Write([]byte(b)); err != nil {
-			return err
+			return errors.Wrap(err, "NewRequest.setBodyGzip")
 		}
 		if err := w.Close(); err != nil {
-			return err
+			return errors.Wrap(err, "NewRequest.setBodyGzip")
 		}
 		r.Header.Add("Content-Encoding", "gzip")
 		r.Header.Add("Vary", "Accept-Encoding")
@@ -77,15 +79,15 @@ func (r *Request) setBodyGzip(body interface{}) error {
 	default:
 		data, err := json.Marshal(b)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "NewRequest.setBodyGzip")
 		}
 		buf := new(bytes.Buffer)
 		w := gzip.NewWriter(buf)
 		if _, err := w.Write(data); err != nil {
-			return err
+			return errors.Wrap(err, "NewRequest.setBodyGzip")
 		}
 		if err := w.Close(); err != nil {
-			return err
+			return errors.Wrap(err, "NewRequest.setBodyGzip")
 		}
 		r.Header.Add("Content-Encoding", "gzip")
 		r.Header.Add("Vary", "Accept-Encoding")

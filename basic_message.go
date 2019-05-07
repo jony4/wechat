@@ -3,9 +3,11 @@ package wechat
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 // IBasicMessage IBasicMessage
@@ -38,7 +40,7 @@ func NewBasicMessage(c *Client, accessToken IAccessToken, message IBasicMessage)
 func (bm *BasicMessage) Send(ctx context.Context) error {
 	// Check pre-conditions
 	if err := bm.message.Validate(); err != nil {
-		return err
+		return errors.Wrap(err, "BasicMessage.Send Validate")
 	}
 	// accessToken
 	at := bm.client.BasicAccessToken(bm.accessToken).GetToken(ctx, false)
@@ -48,7 +50,7 @@ func (bm *BasicMessage) Send(ctx context.Context) error {
 	// body
 	bodybyte, err := json.Marshal(bm.message.Body())
 	if err != nil {
-		return err
+		return errors.Wrap(err, "BasicMessage.Send.json.Marshal")
 	}
 	// PerformRequest
 	res, err := bm.client.PerformRequest(ctx, PerformRequestOptions{
@@ -59,15 +61,15 @@ func (bm *BasicMessage) Send(ctx context.Context) error {
 		Endpoint: bm.message.Endpoint(),
 	})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "BasicMessage.Send.PerformRequest")
 	}
 	// Return operation response
 	ret := new(CommonError)
 	if err := bm.client.decoder.Decode(res.Body, ret); err != nil {
-		return err
+		return errors.Wrap(err, "BasicMessage.Send.Decode")
 	}
 	if ret.ErrCode != 0 {
-		err = errors.New(ret.ErrMsg)
+		err = errors.Wrap(fmt.Errorf("%v", ret.ErrMsg), "BasicMessage.Send")
 	}
 	return err
 }
