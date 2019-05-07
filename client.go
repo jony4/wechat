@@ -552,6 +552,11 @@ func (c *Client) MiniProgramSecImg() *MiniProgramSecImg {
 	return NewMiniProgramSecImg(c)
 }
 
+// MiniProgramSecMsg MiniProgramSecMsg
+func (c *Client) MiniProgramSecMsg() *MiniProgramSecMsg {
+	return NewMiniProgramSecMsg(c)
+}
+
 // -- Basic Common API --
 
 // BasicAccessToken BasicAccessToken
