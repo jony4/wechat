@@ -54,13 +54,10 @@ func (bat *BasicAccessToken) GetToken(ctx context.Context, refresh bool) (access
 	if !refresh {
 		value, err := bat.client.cache.Get(ctx, bat.cacheKey())
 		bat.client.tracef("GetToken cache get err: %v", err)
-		if err != nil && err != ErrCacheKeyNotExist {
-			return
-		} else if err == ErrCacheKeyNotExist {
-			refresh = true
-		} else {
-			accessToken = value.(string)
+		if err == nil {
+			return value.(string)
 		}
+		refresh = true
 	}
 	if refresh {
 		at, err := bat.iat.Credentials(ctx)
