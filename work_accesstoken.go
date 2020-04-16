@@ -43,6 +43,12 @@ func (wat *WorkAccessToken) SetAppID(corpid string) *WorkAccessToken {
 	return wat
 }
 
+// SetAgentID SetAgentID
+func (wat *WorkAccessToken) SetAgentID(agentid string) *WorkAccessToken {
+	wat.agentid = agentid
+	return wat
+}
+
 // Validate checks if the operation is valid.
 func (wat *WorkAccessToken) Validate() error {
 	var invalid []string
