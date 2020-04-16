@@ -20,6 +20,7 @@ type WorkAccessToken struct {
 
 	corpid     string
 	corpsecret string
+	agentid    string
 }
 
 // NewWorkAccessToken return instance of WorkAccessToken
@@ -103,7 +104,7 @@ func (wat *WorkAccessToken) Credentials(ctx context.Context) (*AccessToken, erro
 
 // ToString ToString
 func (wat *WorkAccessToken) ToString() string {
-	return fmt.Sprintf("%s_%s", wat.corpid, wat.corpsecret)
+	return fmt.Sprintf("%s_%s_%s", wat.corpid, wat.corpsecret, wat.agentid)
 }
 
 // WorkAccessTokenResponse WorkAccessTokenResponse
