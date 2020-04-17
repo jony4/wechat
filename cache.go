@@ -27,7 +27,7 @@ var (
 	ErrCacheKeyNotExist = errors.New("key not exist")
 )
 
-// MemCache MemCache
+// MemCache 默认走内存 cache，accesstoken 量不大，内存可以
 type MemCache struct {
 	cache      *cache.Cache
 	expiration time.Duration

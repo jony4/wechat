@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// IBasicMessage IBasicMessage
+// IBasicMessage 发送消息的接口，不同消息只需要实现该接口即可
 type IBasicMessage interface {
 	Body() interface{}
 	Validate() error
@@ -19,7 +19,7 @@ type IBasicMessage interface {
 	Params() url.Values
 }
 
-// BasicMessage BasicMessage
+// BasicMessage 消息结构体，用于拼装消息、发送消息
 type BasicMessage struct {
 	client      *Client
 	message     IBasicMessage
@@ -36,7 +36,7 @@ func NewBasicMessage(c *Client, accessToken IAccessToken, message IBasicMessage)
 	return bm
 }
 
-// Send message
+// Send 发送消息只需要调用该接口即可
 func (bm *BasicMessage) Send(ctx context.Context) error {
 	// Check pre-conditions
 	if err := bm.message.Validate(); err != nil {
