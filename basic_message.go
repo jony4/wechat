@@ -10,6 +10,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+// err
+var (
+	ErrUserRefuseToAccept = errors.New("user refuse to accept the msg")
+)
+
 // IBasicMessage 发送消息的接口，不同消息只需要实现该接口即可
 type IBasicMessage interface {
 	Body() interface{}
@@ -69,7 +74,10 @@ func (bm *BasicMessage) Send(ctx context.Context) error {
 		return errors.Wrap(err, "BasicMessage.Send.Decode")
 	}
 	if ret.ErrCode != 0 {
-		err = errors.Wrap(fmt.Errorf("%v", ret.ErrMsg), "BasicMessage.Send")
+		if ret.ErrCode == 43101 {
+			return ErrUserRefuseToAccept
+		}
+		err = errors.Wrap(fmt.Errorf("code: %d, msg: %v", ret.ErrCode, ret.ErrMsg), "BasicMessage.Send")
 	}
 	return err
 }
