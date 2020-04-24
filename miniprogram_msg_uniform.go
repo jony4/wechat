@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	// MiniProgramUniformMessageEndpoint Endpoint
+	// MiniProgramUniformMessageEndpoint ..
+	// 这个接口的初衷就是想大家在开发小程序的时候，如果要发送公众号消息直接使用这个接口就可以了，无需再去调用公众号的模板消息接口
 	MiniProgramUniformMessageEndpoint = "cgi-bin/message/wxopen/template/uniform_send"
 )
 
@@ -18,6 +19,7 @@ type MiniProgramUniformMessage struct {
 
 // MiniProgramUniformMessageBody MiniProgramUniformMessageBody
 type MiniProgramUniformMessageBody struct {
+	// 用户openid，可以是小程序的openid，也可以是mp_template_msg.appid对应的公众号的openid
 	Touser           string           `json:"touser"`
 	WeappTemplateMsg WeappTemplateMsg `json:"weapp_template_msg"` // 小程序模板消息相关的信息
 	MpTemplateMsg    MpTemplateMsg    `json:"mp_template_msg"`    // 公众号模板消息相关的信息
