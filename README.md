@@ -27,7 +27,7 @@ import (
 func main() {
 	logger := wechat.NewDefaultLogger()
 	// init default client
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Duration(time.Second))
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	opts := []wechat.ClientOptionFunc{
 		wechat.SetInfoLog(logger),
