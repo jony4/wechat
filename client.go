@@ -390,7 +390,7 @@ func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) 
 		// We still try to return a response.
 		resp, err1 := c.newResponse(res, opt.MaxResponseSize)
 		c.tracef("PerformRequest.newResponse try again err %v", err1)
-		return resp, err
+		return resp, err1
 	}
 
 	resp, err = c.newResponse(res, opt.MaxResponseSize)
@@ -486,7 +486,7 @@ func (c *Client) PerformFormRequest(ctx context.Context, opt PerformRequestOptio
 		// We still try to return a response.
 		resp, err1 := c.newResponse(res, opt.MaxResponseSize)
 		c.tracef("PerformRequest.newResponse try again err %v", err1)
-		return resp, err
+		return resp, err1
 	}
 
 	resp, err = c.newResponse(res, opt.MaxResponseSize)
