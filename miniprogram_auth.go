@@ -91,7 +91,7 @@ func (mpa *MiniProgramAuth) Do(ctx context.Context) (*MiniProgramAuthResponse, e
 	res, err := mpa.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramAuthEndpoint,
 	})
 	if err != nil {

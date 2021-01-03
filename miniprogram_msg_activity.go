@@ -62,7 +62,7 @@ func (mpam *MiniProgramActivityMessageCreate) Do(ctx context.Context) (*MiniProg
 	res, err := mpam.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramActivityMessageCreateEndpoint,
 	})
 	if err != nil {
@@ -207,7 +207,7 @@ func (mpamu *MiniProgramActivityMessageUpdate) Do(ctx context.Context) (*MiniPro
 		Method:   http.MethodPost,
 		Params:   params,
 		Body:     string(bodybyte),
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramActivityMessageUpdateEndpoint,
 	})
 	if err != nil {

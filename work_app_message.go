@@ -61,7 +61,7 @@ func (wam *WorkAppMessage) Validate() error {
 
 // BaseURI BaseURI
 func (wam *WorkAppMessage) BaseURI() string {
-	return WorkBaseURI
+	return WorkBaseHost
 }
 
 // Endpoint Endpoint

@@ -76,7 +76,7 @@ func (mpb *MiniProgramSecImg) Do(ctx context.Context) (*MiniProgramSecImgRespons
 		FormValue:     mpb.media,
 		FormFieldName: "media",
 		FormFileName:  "file",
-		BaseURI:       MiniProgramBaseURI,
+		BaseURI:       MiniProgramBaseHost,
 		Endpoint:      MiniProgramSecImgEndpoint,
 	})
 	if err != nil {

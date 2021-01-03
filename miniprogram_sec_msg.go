@@ -76,7 +76,7 @@ func (mpb *MiniProgramSecMsg) Do(ctx context.Context) (*MiniProgramSecMsgRespons
 		Method:   http.MethodPost,
 		Params:   params,
 		Body:     string(bodybyte),
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramSecMsgEndpoint,
 	})
 	if err != nil {

@@ -78,7 +78,7 @@ func (wat *WorkAccessToken) Do(ctx context.Context) (*WorkAccessTokenResponse, e
 	res, err := wat.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  WorkBaseURI,
+		BaseURI:  WorkBaseHost,
 		Endpoint: WorkAccessTokenEndpoint,
 	})
 	if err != nil {

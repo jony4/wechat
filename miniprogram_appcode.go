@@ -113,7 +113,7 @@ func (mpb *MiniProgramAppCodeGet) Do(ctx context.Context) (*MiniProgramAppCodeGe
 	res, err := mpb.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramAppCodeGetEndpoint,
 	})
 	if err != nil {
@@ -230,7 +230,7 @@ func (mpb *MiniProgramAppCodeGetUnlimit) Do(ctx context.Context) (*MiniProgramAp
 	res, err := mpb.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramAppCodeGetUnlimitEndpoint,
 	})
 	if err != nil {
@@ -347,7 +347,7 @@ func (mpb *MiniProgramAppCodeCreate) Do(ctx context.Context) (*MiniProgramAppCod
 	res, err := mpb.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramAppCodeCreateEndpoint,
 	})
 	if err != nil {

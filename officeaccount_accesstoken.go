@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	// MiniProgramAccessTokenEndpoint Endpoint
-	MiniProgramAccessTokenEndpoint = "cgi-bin/token"
+	// OfficeAccountAccessTokenEndpoint Endpoint
+	OfficeAccountAccessTokenEndpoint = "cgi-bin/token"
 )
 
-// MiniProgramAccessToken MiniProgramAccessToken
-type MiniProgramAccessToken struct {
+// OfficeAccountAccessToken OfficeAccountAccessToken
+type OfficeAccountAccessToken struct {
 	client *Client
 
 	appid     string
@@ -23,9 +23,9 @@ type MiniProgramAccessToken struct {
 	grantType string
 }
 
-// NewMiniProgramAccessToken return instance of MiniProgramAccessToken
-func NewMiniProgramAccessToken(client *Client) *MiniProgramAccessToken {
-	mpat := &MiniProgramAccessToken{
+// NewOfficeAccountAccessToken return instance of OfficeAccountAccessToken
+func NewOfficeAccountAccessToken(client *Client) *OfficeAccountAccessToken {
+	mpat := &OfficeAccountAccessToken{
 		client: client,
 	}
 	mpat.SetGrantType()
@@ -33,25 +33,25 @@ func NewMiniProgramAccessToken(client *Client) *MiniProgramAccessToken {
 }
 
 // SetSecret SetSecret
-func (mpat *MiniProgramAccessToken) SetSecret(secret string) *MiniProgramAccessToken {
+func (mpat *OfficeAccountAccessToken) SetSecret(secret string) *OfficeAccountAccessToken {
 	mpat.secret = secret
 	return mpat
 }
 
 // SetAppID SetAppID
-func (mpat *MiniProgramAccessToken) SetAppID(appid string) *MiniProgramAccessToken {
+func (mpat *OfficeAccountAccessToken) SetAppID(appid string) *OfficeAccountAccessToken {
 	mpat.appid = appid
 	return mpat
 }
 
 // SetGrantType SetGrantType
-func (mpat *MiniProgramAccessToken) SetGrantType() *MiniProgramAccessToken {
+func (mpat *OfficeAccountAccessToken) SetGrantType() *OfficeAccountAccessToken {
 	mpat.grantType = "client_credential"
 	return mpat
 }
 
 // Validate checks if the operation is valid.
-func (mpat *MiniProgramAccessToken) Validate() error {
+func (mpat *OfficeAccountAccessToken) Validate() error {
 	var invalid []string
 	if mpat.appid == "" {
 		invalid = append(invalid, "appid")
@@ -66,10 +66,10 @@ func (mpat *MiniProgramAccessToken) Validate() error {
 }
 
 // Do Do
-func (mpat *MiniProgramAccessToken) Do(ctx context.Context) (*MiniProgramAccessTokenResponse, error) {
+func (mpat *OfficeAccountAccessToken) Do(ctx context.Context) (*OfficeAccountAccessTokenResponse, error) {
 	// Check pre-conditions
 	if err := mpat.Validate(); err != nil {
-		return nil, errors.Wrap(err, "MiniProgramAccessToken.Do")
+		return nil, errors.Wrap(err, "OfficeAccountAccessToken.Do")
 	}
 	// url params
 	params := url.Values{}
@@ -80,29 +80,29 @@ func (mpat *MiniProgramAccessToken) Do(ctx context.Context) (*MiniProgramAccessT
 	res, err := mpat.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  MiniProgramBaseHost,
-		Endpoint: MiniProgramAccessTokenEndpoint,
+		BaseURI:  OfficeAccountBaseHost,
+		Endpoint: OfficeAccountAccessTokenEndpoint,
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "MiniProgramAccessToken.Do")
+		return nil, errors.Wrap(err, "OfficeAccountAccessToken.Do")
 	}
 	// Return operation response
-	ret := new(MiniProgramAccessTokenResponse)
+	ret := new(OfficeAccountAccessTokenResponse)
 	if err := mpat.client.decoder.Decode(res.Body, ret); err != nil {
-		return nil, errors.Wrap(err, "MiniProgramAccessToken.Do")
+		return nil, errors.Wrap(err, "OfficeAccountAccessToken.Do")
 	}
 	return ret, nil
 }
 
 // Credentials Credentials
-func (mpat *MiniProgramAccessToken) Credentials(ctx context.Context) (*AccessToken, error) {
+func (mpat *OfficeAccountAccessToken) Credentials(ctx context.Context) (*AccessToken, error) {
 	res, err := mpat.Do(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "MiniProgramAccessToken.Credentials")
+		return nil, errors.Wrap(err, "OfficeAccountAccessToken.Credentials")
 	}
 	if res.ErrCode != 0 {
 		err = fmt.Errorf("errcode: %v, errmsg: %s", res.ErrCode, res.ErrMsg)
-		return nil, errors.Wrap(err, "MiniProgramAccessToken.Credentials")
+		return nil, errors.Wrap(err, "OfficeAccountAccessToken.Credentials")
 	}
 	at := &AccessToken{
 		AccessToken: res.AccessToken,
@@ -112,12 +112,12 @@ func (mpat *MiniProgramAccessToken) Credentials(ctx context.Context) (*AccessTok
 }
 
 // ToString ToString
-func (mpat *MiniProgramAccessToken) ToString() string {
+func (mpat *OfficeAccountAccessToken) ToString() string {
 	return fmt.Sprintf("%s_%s_%s", mpat.grantType, mpat.appid, mpat.secret)
 }
 
-// MiniProgramAccessTokenResponse MiniProgramAccessTokenResponse
-type MiniProgramAccessTokenResponse struct {
+// OfficeAccountAccessTokenResponse OfficeAccountAccessTokenResponse
+type OfficeAccountAccessTokenResponse struct {
 	CommonError
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int64  `json:"expires_in"`

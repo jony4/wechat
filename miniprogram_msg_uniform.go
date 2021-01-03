@@ -71,7 +71,7 @@ func (mpum *MiniProgramUniformMessage) Validate() error {
 
 // BaseURI BaseURI
 func (mpum *MiniProgramUniformMessage) BaseURI() string {
-	return MiniProgramBaseURI
+	return MiniProgramBaseHost
 }
 
 // Endpoint Endpoint

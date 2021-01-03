@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	safeDuration   time.Duration = 600 * time.Second
-	cachekeyPrefix               = "jony4/wechat."
+	safeDuration   = 600 * time.Second
+	cachekeyPrefix = "jony4/wechat."
 )
 
 // IAccessToken AccessToken接口，不同类型应用只需要实现该接口即可管理 accesstoken

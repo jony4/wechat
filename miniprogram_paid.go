@@ -111,7 +111,7 @@ func (mpb *MiniProgramPaid) Do(ctx context.Context) (*MiniProgramPaidResponse, e
 	res, err := mpb.client.PerformRequest(ctx, PerformRequestOptions{
 		Method:   http.MethodGet,
 		Params:   params,
-		BaseURI:  MiniProgramBaseURI,
+		BaseURI:  MiniProgramBaseHost,
 		Endpoint: MiniProgramPaidEndpoint,
 	})
 	if err != nil {
