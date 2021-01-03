@@ -12,6 +12,13 @@ func (c *Client) BasicMessage(accessToken IAccessToken, message IBasicMessage) *
 	return NewBasicMessage(c, accessToken, message)
 }
 
+// -- OfficeAccount API --
+
+// MiniProgramAccessToken Miniprogram Auth
+func (c *Client) OfficeAccountAccessToken() *OfficeAccountAccessToken {
+	return NewOfficeAccountAccessToken(c)
+}
+
 // -- Miniprogram API --
 
 // MiniProgramAuth Miniprogram Auth
